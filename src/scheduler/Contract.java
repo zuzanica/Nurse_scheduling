@@ -34,7 +34,35 @@ public class Contract {
 		this.id = id; 
 	}
 	
+	public void addHardContraints(String maxNA, String minNA, String maxWD, String minWD,String maxFD,String minFD ){
+		maxnumassignments = Integer.parseInt(maxNA);
+		minnumassignments = Integer.parseInt(minNA);
+		
+		maxconsecutiveworkingdays = Integer.parseInt(maxWD);
+		minconsecutiveworkingdays = Integer.parseInt(minWD);
+		
+		maxconsecutivefreedays = Integer.parseInt(maxFD);
+		minconsecutivefreedays = Integer.parseInt(minFD);
+	}
+	
 	public String getDescription(){
 		return description;
 	}
+	
+	
+	@Override
+	public String toString() {
+		String out = "Contract ID : " + this.id + "\n" +
+					 "description : " + this.description + "\n" +
+					 "maxnumassignments : " + this.maxnumassignments + "\n" +
+					 "minnumassignments : " + this.minnumassignments + "\n" + 
+					 "maxconsecutiveworkingdays : " + this.maxconsecutiveworkingdays + "\n" + 
+					 "minconsecutiveworkingdays : " + this.minconsecutiveworkingdays + "\n" + 
+					 "maxconsecutivefreedays : " + this.maxconsecutivefreedays + "\n" + 
+					 "minconsecutivefreedays : " + this.minconsecutivefreedays + "\n"
+					 ;
+		return out;
+	}
+	
+	
 }
