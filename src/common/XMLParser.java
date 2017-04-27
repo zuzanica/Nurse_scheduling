@@ -14,6 +14,8 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import requirements.Cover;
+import requirements.CoverRequirements;
 import scheduler.Contract;
 import scheduler.Nurse;
 import scheduler.Schedule;
@@ -64,6 +66,9 @@ public final class XMLParser {
 			
 			parseNurses(schedule);
 			
+			parseShiftRequirements(schedule);
+			
+			System.out.println("File loaded...");
 			
 		} catch (Exception e) {
 			System.err.println("Problem in XML FILE READING");
@@ -164,9 +169,7 @@ public final class XMLParser {
 	
 	static void parseNurses(Schedule schedule){
 		NodeList nursesNode = (NodeList) doc.getElementsByTagName("Employees");
-		//System.out.println("Node node length " + skillNode.getLength());
 		NodeList nurses = (NodeList) nursesNode.item(0);
-		//System.out.println("Skills node length " + shifts.getLength());
 		for (int temp = 0; temp < nurses.getLength(); temp++) {
 			Node nurse = (Node) nurses.item(temp);
 
@@ -185,14 +188,52 @@ public final class XMLParser {
 								
 				int id = Integer.parseInt(eElement.getAttribute("ID"));
 				int cId = Integer.parseInt(eElement.getElementsByTagName("ContractID").item(0).getTextContent());
-				
-				
 				Nurse n = new Nurse(id, schedule.getContract(cId), NS );
-				System.out.println(n.toString());
+				//System.out.println(n.toString());
 				schedule.addNurse(n);	
 			}	
 		}
-		
+	}
+	
+	static void parseShiftRequirements(Schedule schedule){
+		NodeList coverNode = (NodeList) doc.getElementsByTagName("CoverRequirements");
+		NodeList weekCovers = (NodeList) coverNode.item(0);
+		//create structure of the week cover requirements
+		ArrayList<CoverRequirements> weekCR = new ArrayList<CoverRequirements>();
+		for (int temp = 0; temp < weekCovers.getLength(); temp++) {
+			Node dayCover = (Node) weekCovers.item(temp);
+
+			CoverRequirements DC = null;
+			if (dayCover.getNodeType() == Node.ELEMENT_NODE) {
+				Element eElement = (Element) dayCover;
+				//System.out.println(eElement.getTextContent());
+				//get week day
+				//System.out.println(eElement.getElementsByTagName("Day").item(0).getTextContent());
+				String day = eElement.getElementsByTagName("Day").item(0).getTextContent();
+				//list of four daily shit requirements
+				ArrayList<Cover> shiftCoverList = new ArrayList<Cover>();
+				//parse node with daily cover requirements skill types
+				NodeList shiftCover = (NodeList) eElement.getElementsByTagName("Cover");
+				for (int i = 0; i < shiftCover.getLength(); i++) {
+					Node cover = (Node) shiftCover.item(i);			
+					if (cover.getNodeType() == Node.ELEMENT_NODE) {
+						Element e = (Element) cover;
+						//get shift type
+						String sType = e.getElementsByTagName("Shift").item(0).getTextContent();
+						//get preferred nurses count
+						int nursesCount = Integer.parseInt(e.getElementsByTagName("Preferred").item(0).getTextContent());
+						//create Cover for one shift
+						Cover c = new Cover(schedule.getShift(sType), nursesCount);
+						shiftCoverList.add(c);
+					}
+				}
+				//create structure of one day cover requirements
+				DC = new CoverRequirements(day, shiftCoverList);
+				weekCR.add(DC);
+				//System.out.println(DC.toString());
+			}
+		}
+		schedule.addCoverRequirements(weekCR);	
 	}
 	
 	

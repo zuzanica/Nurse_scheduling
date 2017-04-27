@@ -1,16 +1,28 @@
 package requirements;
 
+import java.util.ArrayList;
+
 import scheduler.Nurse;
 import scheduler.Shift;
 
 public class CoverRequirements {
 	String day;
-	Shift shift;
-	int prefered;
-	public CoverRequirements(String d, Shift s, int p){
+	ArrayList<Cover> cover;
+	
+	public CoverRequirements(String d, ArrayList<Cover> _cover){
 		day = d;
-		shift = s;
-		prefered = p;
+		cover = _cover;
 	}
+	
+	@Override
+	public String toString() {
+		String out = "Day : " + this.day + "\n";
+		for(Cover c : this.cover ){
+			out += "Shift " + c.getShift().getType() + ", require " + c.getPrefNurses()+" nurses \n";
+		}
+		return out+="\n";
+	}
+	
+	
 	
 }

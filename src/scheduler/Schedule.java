@@ -2,6 +2,9 @@ package scheduler;
 
 import java.util.ArrayList;
 
+import requirements.Cover;
+import requirements.CoverRequirements;
+
 public class Schedule {
 	String start = "";
 	String end = "";
@@ -11,6 +14,7 @@ public class Schedule {
 	ArrayList<Shift> shifts = new ArrayList<Shift>();
 	ArrayList<Contract> contracts = new ArrayList<Contract>();
 	ArrayList<Nurse> nurses = new ArrayList<Nurse>();
+	ArrayList<CoverRequirements> weeklyCoverRequirements = new ArrayList<CoverRequirements>() ;
 	
 	int nursesCount = nurses.size();
 	
@@ -39,13 +43,21 @@ public class Schedule {
 		contracts.add(c);
 	}
 	
+	public void addCoverRequirements(ArrayList<CoverRequirements> _week){
+		weeklyCoverRequirements = _week;
+	}
+	
 	public Contract getContract(int contractID){
 		return contracts.get(contractID);
 	}
 	
-	
-	
-	
-	
+	public Shift getShift(String type){
+		for(Shift s: shifts){
+			if(s.getType().equals(type)){
+				return s;
+			}
+		}
+		return null;
+	}
 	
 }
