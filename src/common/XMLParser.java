@@ -114,12 +114,12 @@ public final class XMLParser {
 					}
 				}
 				
-				String id = eElement.getAttribute("ID");
+				String type = eElement.getAttribute("ID");
 				String st = eElement.getElementsByTagName("StartTime").item(0).getTextContent();
 				String et = eElement.getElementsByTagName("EndTime").item(0).getTextContent();
 				String desc = eElement.getElementsByTagName("Description").item(0).getTextContent();
 				
-				Shift s = new Shift(st, et, id, RS, desc);
+				Shift s = new Shift(st, et, type, RS, desc);
 				//System.out.println(s.toString());
 				schedule.addShift(s);	
 			}	

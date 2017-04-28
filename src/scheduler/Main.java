@@ -1,6 +1,7 @@
 package scheduler;
 
 import common.XMLParser;
+import requirements.HarmonySearch;
 
 public class Main {
 	public static String inputFile  = "data/sprint01.xml" ;
@@ -10,6 +11,8 @@ public class Main {
 		 
 		new XMLParser(inputFile);
 		Schedule nurseSchedule = XMLParser.parse();
+		nurseSchedule.initialize();
+		HarmonySearch HSA = new HarmonySearch(nurseSchedule);
 		
 	}
 

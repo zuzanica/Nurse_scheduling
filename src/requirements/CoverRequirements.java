@@ -14,6 +14,32 @@ public class CoverRequirements {
 		cover = _cover;
 	}
 	
+	public String getDay(){
+		return day;
+	}
+	public ArrayList<Cover> getCoversList(){
+		return cover;
+	}
+	
+	public int getDailyCoverCount(){
+		int dayNurseCover = 0; 
+		for(Cover c : cover ){
+			dayNurseCover += c.getPrefNurses();
+		}
+		return dayNurseCover;
+		
+	}
+	
+	/*public Cover getCover(String shitType){
+		for(Cover c : cover ){
+			if(c.getShift().getType().equals(shitType)){
+				return c;
+			}
+		}
+		return null;
+	}*/
+	
+	
 	@Override
 	public String toString() {
 		String out = "Day : " + this.day + "\n";

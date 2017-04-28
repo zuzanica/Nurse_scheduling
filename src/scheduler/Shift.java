@@ -3,6 +3,7 @@ package scheduler;
 import java.util.ArrayList;
 
 public class Shift {
+	int id;
 	String startTime;
 	String endTime;
 	String description;
@@ -10,7 +11,7 @@ public class Shift {
 	public ArrayList<String> requiredSkills = new ArrayList<String>();
 	
 	@SuppressWarnings("unchecked")
-	public Shift(String st, String et, String t,  ArrayList<String> s, String desc ){
+	public Shift( String st, String et, String t,  ArrayList<String> s, String desc ){
 		startTime = st;
 		endTime = et;
 		type = t;
