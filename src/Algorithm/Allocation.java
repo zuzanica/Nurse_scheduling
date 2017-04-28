@@ -1,4 +1,4 @@
-package requirements;
+package Algorithm;
 
 public class Allocation {	
 	int n,d;

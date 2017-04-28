@@ -1,9 +1,9 @@
-package requirements;
+package Algorithm;
 
 import java.util.ArrayList;
 import java.util.stream.IntStream;
 
-import requirements.Allocation;
+import requirements.Cover;
 import scheduler.Schedule;
 
 public class HarmonySearch {

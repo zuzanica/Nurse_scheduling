@@ -1,7 +1,7 @@
-package scheduler;
+package Algorithm;
 
 import common.XMLParser;
-import requirements.HarmonySearch;
+import scheduler.Schedule;
 
 public class Main {
 	public static String inputFile  = "data/sprint01.xml" ;
