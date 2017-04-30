@@ -1,6 +1,11 @@
 package scheduler;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 
 import requirements.Cover;
 import requirements.CoverRequirements;
@@ -11,6 +16,7 @@ public class Schedule {
 	
 	ArrayList<String> skillsTypes = new ArrayList<String>();
 	ArrayList<Shift> shiftsTypes = new ArrayList<Shift>();
+	ArrayList<UnwantedPattern> unwantedPatterns = new ArrayList<UnwantedPattern>();
 	ArrayList<Contract> contractsTypes = new ArrayList<Contract>();
 	
 	ArrayList<Nurse> nurses = new ArrayList<Nurse>();
@@ -28,8 +34,25 @@ public class Schedule {
 	
 	public void initialize(){
 		nursesCount = nurses.size();
-		period = 7;
+		period = covertDateToInt(start, end); 
 		allocationCount = getAllocCount();
+	}
+	
+	public int covertDateToInt(String sDate, String eDate){
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd"); 
+        Date startDate = null;
+        Date endDate = null;
+		try {
+			startDate = df.parse(sDate);
+			endDate = df.parse(eDate);
+			int days = (int) Math.abs((startDate.getTime()-endDate.getTime())/86400000);
+			return days;
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return -1;
 	}
 	
 	public void addSkill(String s){
@@ -48,6 +71,10 @@ public class Schedule {
 		contractsTypes.add(c);
 	}
 	
+	public void addUnwantedPattern(UnwantedPattern up){
+		unwantedPatterns.add(up);
+	}
+	
 	public void addCoverRequirements(ArrayList<CoverRequirements> _week){
 		weeklyCoverRequirements = _week;
 	}
@@ -63,6 +90,18 @@ public class Schedule {
 			}
 		}
 		return null;
+	}
+	
+	public Nurse getNurse(int index) {
+		return nurses.get(index);
+	}
+	
+	public void addNurseFreeDay(int nurseId, String day){
+		nurses.get(nurseId).addFreeDay(covertDateToInt(start, day));
+	}
+	
+	public void addNurseFreeShift(int nurseId, String day, String st){
+		nurses.get(nurseId).addFreeShift(covertDateToInt(start, day), st);
 	}
 	
 	/**
