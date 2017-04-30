@@ -27,14 +27,18 @@ public class Contract {
 	boolean nonightshiftbeforefreeweekend;
 	boolean alternativeskillcategory;
 
-	//ArrayList<int> unwantedpatterns = new ArrayList<int>();
+	ArrayList<Integer> unwantedPatterns;
 	
 	public Contract(int id , String d){
 		description = d;
 		this.id = id; 
 	}
 	
-	public void addHardContraints(String maxNA, String minNA, String maxWD, String minWD,String maxFD,String minFD ){
+	public void addContraints(String assigmentPD, String maxNA, String minNA, String maxWD, String minWD,String maxFD,
+			String minFD, String maxCWW, String minCWW, String MWWIFW, String weekend, String compW ,
+			String ISTDW, String NNSBFW, String altSkill ){
+		
+		singleassignmentperdaytrue = Boolean.valueOf(assigmentPD);
 		maxnumassignments = Integer.parseInt(maxNA);
 		minnumassignments = Integer.parseInt(minNA);
 		
@@ -43,6 +47,21 @@ public class Contract {
 		
 		maxconsecutivefreedays = Integer.parseInt(maxFD);
 		minconsecutivefreedays = Integer.parseInt(minFD);
+		
+		maxconsecutiveworkingweekends = Integer.parseInt(maxCWW);;
+		minconsecutiveworkingweekends = Integer.parseInt(minCWW);
+		
+		maxworkingweekendsinfourweeks = Integer.parseInt(MWWIFW); 
+		weekenddefinition = weekend;
+		
+		completeweekends = Boolean.valueOf(compW);
+		identicalshifttypesduringweekend = Boolean.valueOf(ISTDW);
+		nonightshiftbeforefreeweekend = Boolean.valueOf(NNSBFW);
+		alternativeskillcategory = Boolean.valueOf(altSkill);
+	}
+	
+	public void setUnwantedPatterns(ArrayList<Integer> unwantedPatterns) {
+		this.unwantedPatterns = unwantedPatterns;
 	}
 	
 	public String getDescription(){
@@ -63,6 +82,7 @@ public class Contract {
 					 ;
 		return out;
 	}
-	
+
+
 	
 }
