@@ -1,4 +1,4 @@
-package Algorithm;
+package algorithm;
 
 import common.XMLParser;
 import scheduler.Schedule;
