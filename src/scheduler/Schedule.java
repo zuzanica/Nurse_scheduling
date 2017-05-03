@@ -34,7 +34,8 @@ public class Schedule {
 	
 	public void initialize(){
 		nursesCount = nurses.size();
-		period = 7;//covertDateToInt(start, end); 
+		period = 7;
+		//period = covertDateToInt(start, end); 
 		allocationCount = getAllocCount();
 	}
 	
