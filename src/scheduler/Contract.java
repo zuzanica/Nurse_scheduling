@@ -3,9 +3,11 @@ package scheduler;
 import java.util.ArrayList;
 
 public class Contract {
-	public int id;
-	public String description;
+	int id;
+	String description;
 	boolean singleassignmentperdaytrue;
+	int weight1 = 1;
+	int weight2 = 0;
 	
 	int maxnumassignments;
 	int minnumassignments;
@@ -68,6 +70,61 @@ public class Contract {
 		return description;
 	}
 	
+	public int getMaxconsecutivefreedays() {
+		return maxconsecutivefreedays;
+	}
+	
+	public int getMaxconsecutiveworkingweekends() {
+		return maxconsecutiveworkingweekends;
+	}
+	
+	public int getMaxworkingweekendsinfourweeks() {
+		return maxworkingweekendsinfourweeks;
+	}
+	
+	public int getMaxnumassignments() {
+		return maxnumassignments;
+	}
+	
+	public int getId() {
+		return id;
+	}
+	
+	public int getMaxconsecutiveworkingdays() {
+		return maxconsecutiveworkingdays;
+	}
+	
+	public int getMinconsecutivefreedays() {
+		return minconsecutivefreedays;
+	}
+	
+	public int getMinconsecutiveworkingdays() {
+		return minconsecutiveworkingdays;
+	}
+	
+	public int getMinconsecutiveworkingweekends() {
+		return minconsecutiveworkingweekends;
+	}
+	
+	public int getMinnumassignments() {
+		return minnumassignments;
+	}
+	
+	public ArrayList<Integer> getUnwantedPatterns() {
+		return unwantedPatterns;
+	}
+	
+	public String getWeekenddefinition() {
+		return weekenddefinition;
+	}
+	
+	public int getWeight1() {
+		return weight1;
+	}
+	
+	public int getWeight2() {
+		return weight2;
+	}
 	
 	@Override
 	public String toString() {

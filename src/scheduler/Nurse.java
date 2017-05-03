@@ -36,6 +36,10 @@ public class Nurse {
 	public void addFreeShift(int d, String st) {
 		freeShiftRequirements.add(new FreeShift(d, st));
 	}
+	
+	public Contract getContract() {
+		return contract;
+	}
 
 	@Override
 	public String toString() {

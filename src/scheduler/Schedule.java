@@ -11,6 +11,8 @@ import requirements.Cover;
 import requirements.CoverRequirements;
 
 public class Schedule {
+	public static final int SOFTCONTRAINTS = 15; 
+	
 	String start = "";
 	String end = "";
 	
@@ -24,6 +26,7 @@ public class Schedule {
 	
 	// schedule variables	
 	public int nursesCount = 0;
+	public int shiftTypeCount = 0;
 	public int period = 0;
 	public int allocationCount = 0;
 	
@@ -34,8 +37,9 @@ public class Schedule {
 	
 	public void initialize(){
 		nursesCount = nurses.size();
-		period = 7;
-		//period = covertDateToInt(start, end); 
+		shiftTypeCount = shiftsTypes.size();
+		//period = 7;
+		period = covertDateToInt(start, end); 
 		allocationCount = getAllocCount();
 	}
 	
