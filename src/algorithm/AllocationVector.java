@@ -241,22 +241,34 @@ public class AllocationVector {
 					int nurse = freeNurses.get(j);
 					freeWorkingDaysNew[nurse] = freeWorkDaysOld[nurse] + 1;
 					
+					// count maximum consecutive free days
 					int maxcfd = schedule.getNurse(nurse).getContract().getMaxconsecutivefreedays();
-					int mincfd = schedule.getNurse(nurse).getContract().getMinconsecutivefreedays();
 					if(freeWorkingDaysNew[nurse] > maxcfd){
 						maxFreeDays[nurse]++;
 						//System.out.println("Nurse " + nurse + " has max incerased to  " +  maxFreeDays[nurse]);
 					}
 					//System.out.println("Nurse " + nurse + " at day " + day + " has max consequiteve free days " +  maxFreeDays[nurse]);
 				}
+				
+				//for all nurses
+				for (int j = 0; j < minFreeDays.length; j++) {
+					//System.out.println("Nurse " + j + " has new value  " +  freeWorkingDaysNew[j] + "    and  old value " + freeWorkDaysOld[j] );
+					// count minimum consecutive free days
+					int mincfd = schedule.getNurse(j).getContract().getMinconsecutivefreedays();
+					if((freeWorkingDaysNew[j] == 0) && (freeWorkDaysOld[j] < mincfd )){
+						minFreeDays[j] += freeWorkDaysOld[j];
+						//System.out.println("Nurse " + j + " has min incerased to  " +  minFreeDays[j]);
+					}
+				}
+				
 				// reinitialize nurses array
 				freeNurses = initArray(freeNurses, schedule.nursesCount);
 				// copy new array into old
 				freeWorkDaysOld = freeWorkingDaysNew.clone();
 				Arrays.fill(freeWorkingDaysNew,new Integer(0));
 				
-				/*for (int j = 0; j < maxFreeDays.length; j++) {
-					System.out.println("Nurse " + j  + " has max consequiteve free days " +  maxFreeDays[j]);
+				/*for (int j = 0; j < minFreeDays.length; j++) {
+					System.out.println("Nurse " + j  + " has min consequiteve free days " +  minFreeDays[j]);
 				}*/
 			}
 			
@@ -264,10 +276,10 @@ public class AllocationVector {
 			freeNurses.remove(Integer.valueOf(a.n));
 		}
 		
-		// count violation for all nurses
+		// count S4 S5 violation for all nurses
 		for (int j = 0; j < maxFreeDays.length; j++) {
 			softContraintsVolation[4] += maxFreeDays[j]; 
-			//softContraintsVolation[3] += minConsWorkTotal[j]; 
+			softContraintsVolation[5] += minFreeDays[j]; 
 			//System.out.println("Nurse " +j+ " S4 violation-" +  minConsWorkTotal[j]);
 		}
 			
@@ -322,9 +334,6 @@ public class AllocationVector {
 		return weight;
 	
 	}
-
-	
-	
 	
 	//if schedule pass soft constraints
 	/*if(minConsWorkDayNew[a.n] > mcfd){
