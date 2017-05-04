@@ -117,15 +117,15 @@ public class AllocationVector {
 	 */
 	protected int evaluateRooster(){
 			
-		getS1S2volations();
+		getS1S2violations();
 		
-		getS3S4volations();
+		getS3S4violations();
 		
 		// check S5,S6 constraint
 		getMaxMinFreeDayVolations();
 		
 		for (int i = 0; i < softContraintsVolation.length; i++) {
-			System.out.println("Total S" + i + " volation " + softContraintsVolation[i]);
+			System.out.println("Total S" + i + " violation " + softContraintsVolation[i]);
 		}
 		
 		return 0;
@@ -134,7 +134,7 @@ public class AllocationVector {
 	/**
 	 * Count soft constraints S1, S2.
 	 */
-	private void getS1S2volations(){
+	private void getS1S2violations(){
 		// count Max,Min number of assigments
 		// loop all nurses		
 		for (int i = 0; i < schedule.nursesCount; i++) {
@@ -150,8 +150,8 @@ public class AllocationVector {
 					scheduledAssigments++;
 				}
 			}
-			//System.out.println("Nurse " + n.id + " S1 volation " +  (scheduledAssigments - maxAssigmentns));
-			//System.out.println("Nurse " + n.id + " S2 volation " +  (minAssigmentns - scheduledAssigments));
+			//System.out.println("Nurse " + n.id + " S1 violation " +  (scheduledAssigments - maxAssigmentns));
+			//System.out.println("Nurse " + n.id + " S2 violation " +  (minAssigmentns - scheduledAssigments));
 			// total cost for S1 constraint
 			softContraintsVolation[0] += (n.getContract().getWeight1()* Math.max( scheduledAssigments - maxAssigmentns, 0));
 			//total cost for S2 constraint
@@ -159,7 +159,7 @@ public class AllocationVector {
 		}
 	}
 	
-	private void getS3S4volations(){			
+	private void getS3S4violations(){			
 		int[] consWorkDayOld = new int[schedule.nursesCount];
 		Arrays.fill(consWorkDayOld,new Integer(0));
 		int[] consWorkDayNew = new int[schedule.nursesCount];
@@ -179,14 +179,14 @@ public class AllocationVector {
 			
 			if(a.d != day ){
 				day = a.d;
-				// at start of the day find minimal consecutive day volation
+				// at start of the day find minimal consecutive day violation
 				// System.out.println("Day " +  day);
 				for (int j = 0; j < minConsWorkTotal.length; j++) {
 					int mincwd = schedule.getNurse(j).getContract().getMinconsecutiveworkingdays();
 					if((consWorkDayNew[j] == 0) && (consWorkDayOld[j] < mincwd )){
 						minConsWorkTotal[j] += consWorkDayOld[j];
 					}
-					//System.out.println("Nurse " +j + " S4 volation-" +  minConsWorkTotal[j] +"   new val-" + consWorkDayNew[j] + "    Old val-" +  consWorkDayOld[j] + "   min " + mincwd);
+					//System.out.println("Nurse " +j + " S4 violation-" +  minConsWorkTotal[j] +"   new val-" + consWorkDayNew[j] + "    Old val-" +  consWorkDayOld[j] + "   min " + mincwd);
 				}
 				//count consecutive work days
 				consWorkDayOld = consWorkDayNew.clone();
@@ -198,7 +198,7 @@ public class AllocationVector {
 			int maxcwd = schedule.getNurse(a.n).getContract().getMaxconsecutiveworkingdays();
 			if(consWorkDayNew[a.n] > maxcwd){
 				consWorkTotal[a.n]++;
-				//System.out.println("Nurse " +a.n + " S3 volation incerased at day" + day + " to " +  consWorkTotal[a.n]);
+				//System.out.println("Nurse " +a.n + " S3 violation incerased at day" + day + " to " +  consWorkTotal[a.n]);
 			}
 		}
 		
@@ -206,13 +206,80 @@ public class AllocationVector {
 		for (int j = 0; j < minConsWorkTotal.length; j++) {
 			softContraintsVolation[2] += consWorkTotal[j]; 
 			softContraintsVolation[3] += minConsWorkTotal[j]; 
-			//System.out.println("Nurse " +j+ " S4 volation-" +  minConsWorkTotal[j]);
+			//System.out.println("Nurse " +j+ " S4 violation-" +  minConsWorkTotal[j]);
 		}
 	}
 	
 	
 	private void getMaxMinFreeDayVolations(){
+		int[] freeWorkDaysOld = new int[schedule.nursesCount];
+		Arrays.fill(freeWorkDaysOld,new Integer(0));
+		int[] freeWorkingDaysNew = new int[schedule.nursesCount];
+		Arrays.fill(freeWorkingDaysNew,new Integer(0));
 		
+		// vector of nurses with maximal and minimal free days in row
+		int[] maxFreeDays = new int[schedule.nursesCount];
+		Arrays.fill(maxFreeDays,new Integer(0));
+		// vector of nurses total consecutive day 
+		int[] minFreeDays = new int[schedule.nursesCount];
+		Arrays.fill(minFreeDays,new Integer(0));
+		
+		ArrayList<Integer> freeNurses = new ArrayList<>();
+		freeNurses = initArray(freeNurses, schedule.nursesCount);
+		
+		// TODO sort x by day value
+		int day = 0;
+		// loop feasible rooster represented like Allocation vector x
+		for (int i = 0; i < x.size(); i++) {
+			Allocation a = x.get(i);
+			// at startof new day starts
+			if(a.d != day){
+				day = a.d;
+				//System.out.println("Day " + day);
+				// iterate all nurses that does not work previous day
+				for (int j = 0; j < freeNurses.size(); j++) {
+					int nurse = freeNurses.get(j);
+					freeWorkingDaysNew[nurse] = freeWorkDaysOld[nurse] + 1;
+					
+					int maxcfd = schedule.getNurse(nurse).getContract().getMaxconsecutivefreedays();
+					int mincfd = schedule.getNurse(nurse).getContract().getMinconsecutivefreedays();
+					if(freeWorkingDaysNew[nurse] > maxcfd){
+						maxFreeDays[nurse]++;
+						//System.out.println("Nurse " + nurse + " has max incerased to  " +  maxFreeDays[nurse]);
+					}
+					//System.out.println("Nurse " + nurse + " at day " + day + " has max consequiteve free days " +  maxFreeDays[nurse]);
+				}
+				// reinitialize nurses array
+				freeNurses = initArray(freeNurses, schedule.nursesCount);
+				// copy new array into old
+				freeWorkDaysOld = freeWorkingDaysNew.clone();
+				Arrays.fill(freeWorkingDaysNew,new Integer(0));
+				
+				/*for (int j = 0; j < maxFreeDays.length; j++) {
+					System.out.println("Nurse " + j  + " has max consequiteve free days " +  maxFreeDays[j]);
+				}*/
+			}
+			
+			//remove nurse if has assigned shift
+			freeNurses.remove(Integer.valueOf(a.n));
+		}
+		
+		// count violation for all nurses
+		for (int j = 0; j < maxFreeDays.length; j++) {
+			softContraintsVolation[4] += maxFreeDays[j]; 
+			//softContraintsVolation[3] += minConsWorkTotal[j]; 
+			//System.out.println("Nurse " +j+ " S4 violation-" +  minConsWorkTotal[j]);
+		}
+			
+	}
+	
+	private ArrayList<Integer> initArray(ArrayList<Integer> list, int size){
+		
+		list.clear();
+		for (int i = 0; i < size; i++) {
+			list.add(i);
+		}
+		return list;
 	}
 	
 	private int[] randNurses(int count, int max ){
@@ -262,12 +329,12 @@ public class AllocationVector {
 	//if schedule pass soft constraints
 	/*if(minConsWorkDayNew[a.n] > mcfd){
 		System.out.println(" MCFD " +mcfd);
-		System.out.println("Nurse " +a.n + " S4 volation passed at day " + day +  "  from: " +  minConsWorkTotal[a.n]);
+		System.out.println("Nurse " +a.n + " S4 violation passed at day " + day +  "  from: " +  minConsWorkTotal[a.n]);
 		minConsWorkTotal[a.n] -= (minConsWorkDayNew[a.n]-1);
 		if(minConsWorkTotal[a.n] < 0) minConsWorkTotal[a.n] = 0;
 		System.out.println(" to " +  minConsWorkTotal[a.n] + " by " + (minConsWorkDayNew[a.n]-1));
 	}else{
-		//System.out.println("Nurse " +a.n + " S4 volation passed at day" + day + " to " +  consWorkTotal[a.n]);
+		//System.out.println("Nurse " +a.n + " S4 violation passed at day" + day + " to " +  consWorkTotal[a.n]);
 		minConsWorkTotal[a.n]++;
 	}*/
 	
