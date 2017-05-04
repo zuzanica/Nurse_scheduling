@@ -51,7 +51,7 @@ public class Schedule {
 			startDate = df.parse(sDate);
 			endDate = df.parse(eDate);
 			int days = (int) Math.abs((startDate.getTime()-endDate.getTime())/86400000);
-			return days;
+			return days+1;
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -69,7 +69,11 @@ public class AllocationVector {
 	public String toString(){
 		String out = "[ ";
 		for(int j = 0; j < x.size(); j++){
-			out += x.get(j).toString() + ", ";
+			
+			out += x.get(j).toString() + " , ";
+			if(j > 0 && j % 5 == 4){
+				out += "\n";
+			}
 		}
 		
 		out += " | " + fx + " ]";
@@ -115,7 +119,10 @@ public class AllocationVector {
 			
 		getS1S2volations();
 		
-		getS3S4S5S6volations();
+		getS3S4volations();
+		
+		// check S5,S6 constraint
+		getMaxMinFreeDayVolations();
 		
 		for (int i = 0; i < softContraintsVolation.length; i++) {
 			System.out.println("Total S" + i + " volation " + softContraintsVolation[i]);
@@ -152,39 +159,60 @@ public class AllocationVector {
 		}
 	}
 	
-	private void getS3S4S5S6volations(){
-		//	int minConsWorkDays = n.getContract().getMinconsecutiveworkingdays();
-		//int maxConsFreeDays = n.getContract().getMaxconsecutivefreedays();
-		//int minConsFreeDays = n.getContract().getMinconsecutivefreedays();
-			
+	private void getS3S4volations(){			
 		int[] consWorkDayOld = new int[schedule.nursesCount];
 		Arrays.fill(consWorkDayOld,new Integer(0));
 		int[] consWorkDayNew = new int[schedule.nursesCount];
 		Arrays.fill(consWorkDayNew,new Integer(0));
+		
 		// vector of nurses total consecutive day 
 		int[] consWorkTotal = new int[schedule.nursesCount];
+		Arrays.fill(consWorkTotal,new Integer(0));
+		// vector of nurses total consecutive day 
+		int[] minConsWorkTotal = new int[schedule.nursesCount];
+		Arrays.fill(minConsWorkTotal,new Integer(0));
 		
 		//TODO sort x by day value
 		int day = 0;
 		for (int i = 0; i < x.size(); i++) {
 			Allocation a = x.get(i);
-			// beginning of the new day
+			
 			if(a.d != day ){
 				day = a.d;
+				// at start of the day find minimal consecutive day volation
+				// System.out.println("Day " +  day);
+				for (int j = 0; j < minConsWorkTotal.length; j++) {
+					int mincwd = schedule.getNurse(j).getContract().getMinconsecutiveworkingdays();
+					if((consWorkDayNew[j] == 0) && (consWorkDayOld[j] < mincwd )){
+						minConsWorkTotal[j] += consWorkDayOld[j];
+					}
+					//System.out.println("Nurse " +j + " S4 volation-" +  minConsWorkTotal[j] +"   new val-" + consWorkDayNew[j] + "    Old val-" +  consWorkDayOld[j] + "   min " + mincwd);
+				}
+				//count consecutive work days
 				consWorkDayOld = consWorkDayNew.clone();
 				Arrays.fill(consWorkDayNew,new Integer(0));
 			}
+			
+			// add next working dayt to nurse a.n
 			consWorkDayNew[a.n] = consWorkDayOld[a.n] + 1;
-			int mcwd = schedule.getNurse(a.n).getContract().getMaxconsecutiveworkingdays();
-			if(consWorkDayNew[a.n] > mcwd){
+			int maxcwd = schedule.getNurse(a.n).getContract().getMaxconsecutiveworkingdays();
+			if(consWorkDayNew[a.n] > maxcwd){
 				consWorkTotal[a.n]++;
 				//System.out.println("Nurse " +a.n + " S3 volation incerased at day" + day + " to " +  consWorkTotal[a.n]);
 			}
 		}
-		/*for (int i = 0; i < consWorkTotal.length; i++) {
-			System.out.println("Nurse " + i + " S3 volation " +  consWorkTotal[i]);
-			softContraintsVolation[2] += consWorkTotal[i]; 
-		}*/
+		
+		//count total soft constraints
+		for (int j = 0; j < minConsWorkTotal.length; j++) {
+			softContraintsVolation[2] += consWorkTotal[j]; 
+			softContraintsVolation[3] += minConsWorkTotal[j]; 
+			//System.out.println("Nurse " +j+ " S4 volation-" +  minConsWorkTotal[j]);
+		}
+	}
+	
+	
+	private void getMaxMinFreeDayVolations(){
+		
 	}
 	
 	private int[] randNurses(int count, int max ){
@@ -229,6 +257,19 @@ public class AllocationVector {
 	}
 
 	
+	
+	
+	//if schedule pass soft constraints
+	/*if(minConsWorkDayNew[a.n] > mcfd){
+		System.out.println(" MCFD " +mcfd);
+		System.out.println("Nurse " +a.n + " S4 volation passed at day " + day +  "  from: " +  minConsWorkTotal[a.n]);
+		minConsWorkTotal[a.n] -= (minConsWorkDayNew[a.n]-1);
+		if(minConsWorkTotal[a.n] < 0) minConsWorkTotal[a.n] = 0;
+		System.out.println(" to " +  minConsWorkTotal[a.n] + " by " + (minConsWorkDayNew[a.n]-1));
+	}else{
+		//System.out.println("Nurse " +a.n + " S4 volation passed at day" + day + " to " +  consWorkTotal[a.n]);
+		minConsWorkTotal[a.n]++;
+	}*/
 	
 	
 }
