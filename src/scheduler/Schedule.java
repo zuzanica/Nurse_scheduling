@@ -6,12 +6,14 @@ import java.text.SimpleDateFormat;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Random;
 
 import requirements.Cover;
 import requirements.CoverRequirements;
 
 public class Schedule {
 	public static final int SOFTCONTRAINTS = 15; 
+	private Random rand; 	
 	
 	String start = "";
 	String end = "";
@@ -41,6 +43,11 @@ public class Schedule {
 		//period = 7;
 		period = covertDateToInt(start, end); 
 		allocationCount = getAllocCount();
+		
+		// create Random generator
+		long currentTime = System.currentTimeMillis();
+	    rand = new Random(currentTime);
+		
 	}
 	
 	public int covertDateToInt(String sDate, String eDate){
@@ -125,6 +132,11 @@ public class Schedule {
 		return ac;
 	}
 	
+	/**
+	 * 
+	 * @param day
+	 * @return Allocation count at all days day
+	 */
 	public int getAllocCount(String day){
 		int ac = 0;
 		//get count for period selected by xml Cover requirements
@@ -138,6 +150,11 @@ public class Schedule {
 		return ac;
 	}	
 	
+	/**
+	 * 
+	 * @param i
+	 * @return Allocation count at day i
+	 */
 	public int getAllocCount(int i){
 		int ac = 0;
 		//get count for day i
@@ -153,4 +170,15 @@ public class Schedule {
 		CoverRequirements cr = weeklyCoverRequirements.get(i);	
 		return cr.getCoversList();
 	}
+	
+	public int getRandNum(int min, int max){
+        int result = rand.nextInt((max - min) + 1) + min;
+        return result;
+	}
+	
+	public double getRandNum(){
+        double result = rand.nextDouble();
+        return result;
+	}
+	
 }

@@ -8,7 +8,7 @@ import requirements.Cover;
 import scheduler.Nurse;
 import scheduler.Schedule;
 
-public class AllocationVector {
+public class AllocationVector implements Comparable<Object>{
 	
 	Schedule schedule;
 	ArrayList<Allocation> x ;
@@ -43,7 +43,7 @@ public class AllocationVector {
 		x = new ArrayList<Allocation>();
 		fx = 0;
 		
-		createFeasubleRooster();
+		//createFeasubleRooster();
 	}
 	
 	public void addAllocation(int _n, int _d, String _s){
@@ -66,18 +66,39 @@ public class AllocationVector {
 		return fx;
 	}
 	
+	@Override
 	public String toString(){
 		String out = "[ ";
 		for(int j = 0; j < x.size(); j++){
 			
 			out += x.get(j).toString() + " , ";
 			if(j > 0 && j % 5 == 4){
-				out += "\n";
+				;//out += "\n";
 			}
 		}
 		
 		out += " | " + fx + " ]";
 		return out;
+	}
+	
+	@Override
+	public int compareTo(Object o) {
+		if (o instanceof AllocationVector) {
+			AllocationVector a = ((AllocationVector)o);
+			if (this.fx == a.fx)
+			{
+			    return 0;
+			}
+			else if (this.fx > a.fx)
+			{
+			    return 1;
+			}
+			else
+			{
+			    return -1;
+			}
+                }
+		return 0;
 	}
 	
 	public void createFeasubleRooster(){
@@ -110,22 +131,50 @@ public class AllocationVector {
 		return ;
 	}
 	
+	public Allocation getNextFeasibleAllocation(int allocationPosition, int day, String shift){
+		ArrayList<Integer> possibleNurses = new ArrayList<>();
+		possibleNurses = initArray(possibleNurses, schedule.nursesCount);
+		
+		// iterate actual rooster x, and find all nurses scheduled at day "day"
+		for(Allocation a : x){
+			if(day == a.d ){
+				possibleNurses.remove(Integer.valueOf(a.n));
+			}
+		}
+		// get random nurse from array of possible nurses
+		int randNurse = schedule.getRandNum(0, possibleNurses.size());
+		int nurseId = possibleNurses.get(randNurse);
+		// return new allocation
+		return new Allocation(nurseId, day, shift);
+	}
+	
+	// TODO
+	public boolean checkFeasibility(){
+		// sort
+		// ...
+		return false;
+	}
+	
 	/**
 	 * Fot all Soft contraint coutn Gs(x). From Gs(x) count total evaluate function fx.
 	 * @param x : feasible rooster
 	 * @return fx value
 	 */
 	protected int evaluateRooster(){
-			
+		// check S1,S2 constraint	
 		getS1S2violations();
 		
+		// check S3,S4 constraint
 		getS3S4violations();
 		
 		// check S5,S6 constraint
 		getMaxMinFreeDayVolations();
 		
+		//TODO S7 S9 S10 S12 
+		
 		for (int i = 0; i < softContraintsVolation.length; i++) {
-			System.out.println("Total S" + i + " violation " + softContraintsVolation[i]);
+			//System.out.println("Total S" + i + " violation " + softContraintsVolation[i]);
+			fx +=  softContraintsVolation[i];
 		}
 		
 		return 0;
@@ -249,7 +298,6 @@ public class AllocationVector {
 					}
 					//System.out.println("Nurse " + nurse + " at day " + day + " has max consequiteve free days " +  maxFreeDays[nurse]);
 				}
-				
 				//for all nurses
 				for (int j = 0; j < minFreeDays.length; j++) {
 					//System.out.println("Nurse " + j + " has new value  " +  freeWorkingDaysNew[j] + "    and  old value " + freeWorkDaysOld[j] );
@@ -260,29 +308,24 @@ public class AllocationVector {
 						//System.out.println("Nurse " + j + " has min incerased to  " +  minFreeDays[j]);
 					}
 				}
-				
 				// reinitialize nurses array
 				freeNurses = initArray(freeNurses, schedule.nursesCount);
 				// copy new array into old
 				freeWorkDaysOld = freeWorkingDaysNew.clone();
 				Arrays.fill(freeWorkingDaysNew,new Integer(0));
-				
 				/*for (int j = 0; j < minFreeDays.length; j++) {
 					System.out.println("Nurse " + j  + " has min consequiteve free days " +  minFreeDays[j]);
 				}*/
 			}
-			
 			//remove nurse if has assigned shift
 			freeNurses.remove(Integer.valueOf(a.n));
 		}
-		
 		// count S4 S5 violation for all nurses
 		for (int j = 0; j < maxFreeDays.length; j++) {
 			softContraintsVolation[4] += maxFreeDays[j]; 
 			softContraintsVolation[5] += minFreeDays[j]; 
 			//System.out.println("Nurse " +j+ " S4 violation-" +  minConsWorkTotal[j]);
 		}
-			
 	}
 	
 	private ArrayList<Integer> initArray(ArrayList<Integer> list, int size){

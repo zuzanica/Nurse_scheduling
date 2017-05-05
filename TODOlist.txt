@@ -1,0 +1,5 @@
+TODO list SNT
+
+1. overenie Feasible rooster
+2. zoradenie feasible rooster podla dni
+3
