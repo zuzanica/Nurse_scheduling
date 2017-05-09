@@ -326,7 +326,7 @@ public class AllocationVector implements Comparable<Object>{
 			softContraintsVolation[5] += minFreeDays[j]; 
 			//System.out.println("Nurse " +j+ " S4 violation-" +  minConsWorkTotal[j]);
 		}
-	}
+	}	
 	
 	private ArrayList<Integer> initArray(ArrayList<Integer> list, int size){
 		
@@ -355,28 +355,50 @@ public class AllocationVector implements Comparable<Object>{
 		return newfiled;
 	}
 	
-	double setAllocationWeight(Allocation a,int validNurses){
-		double weight=0;
-		// Night shift is alwais type N, and has weight 100
-		if(a.s.equals("N")){
-			weight += 100; 
-			//System.out.println("Sum " + weight);
-		}
-		// Weekend shift is alwais 5th or 6th day (week is 0..6) 
-		if((a.d % 7 == 5) || (a.d % 7 == 6)){
-			weight += 50;
-			//System.out.println("Sum " + weight);
-		}
-		// (Number of valid Nurses / Total nurses) * 70 
-		double s = (double)validNurses /(schedule.nursesCount);
-		weight += s * 70;
-		//System.out.println("Sum "+ weight);
-		// (schedule end data - shift date) * 20
-		weight += (schedule.period - a.d) * 20; 
-		//System.out.println("Sum " + weight);
-		return weight;
-	
+	public int randNurse(ArrayList<Integer> avaliableNurses){
+		int n, index;
+		index = schedule.getRandNum(0, avaliableNurses.size()-1);
+		return avaliableNurses.get(index);
 	}
+	
+	ArrayList<Integer> getAvaliableNurseList(int day){
+		ArrayList<Integer> avaliableNurses = new ArrayList<>();
+		avaliableNurses = initArray(avaliableNurses, schedule.nursesCount);
+		
+		for (int i = 0; i < x.size(); i++) {
+			Allocation a = x.get(i);
+			// find working nurses at required day 
+			if(a.d == day){
+				avaliableNurses.remove(Integer.valueOf(a.n));
+			}
+		}
+		//System.out.println("Avaliable nurses at day "+day+ " are "+ avaliableNurses.toString());
+		return avaliableNurses;
+	}
+	 
+		double setAllocationWeight(Allocation a,int validNurses){
+			double weight=0;
+			// Night shift is alwais type N, and has weight 100
+			if(a.s.equals("N")){
+				weight += 100; 
+				//System.out.println("Sum " + weight);
+			}
+			// Weekend shift is alwais 5th or 6th day (week is 0..6) 
+			if((a.d % 7 == 5) || (a.d % 7 == 6)){
+				weight += 50;
+				//System.out.println("Sum " + weight);
+			}
+			// (Number of valid Nurses / Total nurses) * 70 
+			double s = (double)validNurses /(schedule.nursesCount);
+			weight += s * 70;
+			//System.out.println("Sum "+ weight);
+			// (schedule end data - shift date) * 20
+			weight += (schedule.period - a.d) * 20; 
+			//System.out.println("Sum " + weight);
+			return weight;
+		
+		}	 
+	 
 	
 	//if schedule pass soft constraints
 	/*if(minConsWorkDayNew[a.n] > mcfd){

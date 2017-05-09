@@ -13,10 +13,15 @@ import scheduler.Schedule;
 import scheduler.Shift;
 
 public class HarmonySearch {
+	// constatnts set accortidn the study 
 	static final int HMS = 10;
 	static final double HMCR = 0.99;
-	static final double PAR = 0.0;
 	static final int NI = 1000;
+	static final double PAR = 0.01;
+	static final double PAR1 = PAR/3;
+	static final double PAR2 = 2*PAR/3;
+	static final double PAR3 = PAR;
+	
 	
 	 ArrayList<AllocationVector> HM = new ArrayList<AllocationVector>(); 
 	
@@ -58,14 +63,38 @@ public class HarmonySearch {
 			if(randHMCR < HMCR){
 				//while(rooster is feasible)
 				// Memory Consideration 
-				int rooseterPos = schedule.getRandNum(0, HMS-1);
-				//System.out.println("Iteration "+ i +" HMS pos: " + rooseterPos);
-				AllocationVector historicalRooseterInHM = HM.get(rooseterPos);
-				// select x from AllocationVector and Allocation i from x. 
-				Allocation a = historicalRooseterInHM.getX().get(i);
-				newRooster.addAllocation(a);
-				//System.out.println("Add HM Allocation "+ a.toString());
+					int rooseterPos = schedule.getRandNum(0, HMS-1);
+					//System.out.println("Iteration "+ i +" HMS pos: " + rooseterPos);
+					AllocationVector historicalRooseterInHM = HM.get(rooseterPos);
+					// select x from AllocationVector and Allocation i from x. 
+					Allocation a = historicalRooseterInHM.getX().get(i);
+					
+					//System.out.println("Add HM Allocation "+ a.toString());
 				// do TODO check feasibility
+				// Pitch adjustments
+				double randPAR = schedule.getRandNum();
+				// 0 <= U(0,1) < PAR1
+				if(randPAR < PAR1){ 
+					//System.out.println("Historical val "+ a.toString());
+					a = move(a, newRooster);
+					//System.out.println("New val "+ a.toString());
+				}
+				// PAR1 <= U(0,1) < PAR2
+				else if(randPAR < PAR2){
+					//swapNurses();
+				}
+				// PAR2 <= U(0,1) < PAR3
+				else if(randPAR < PAR3){
+					//snawDays();
+				}
+				// PAR3 <= U(0,1) <= 1
+				else{
+					; // do nothing
+				}
+				
+				// add allocation a into new rooster
+				newRooster.addAllocation(a);
+				
 			} else{
 				// Random Consideration
 				// get feasible Allocation
@@ -82,6 +111,22 @@ public class HarmonySearch {
 		newRooster.evaluateRooster();
 		System.out.println("New rooster:\n" + newRooster.toString());
 		
+	}
+	
+	/**
+	 * Switch shift allocation.s at day allocation.d with any other feasible nurse. 
+	 * New nurse is selected according actually formed rooster.   
+	 * @param a, rooster
+	 * @return allocation with new nurse 
+	 */
+	Allocation move(Allocation a, AllocationVector rooster){
+		int newNurseId;
+		ArrayList<Integer> avaliableNurses  = rooster.getAvaliableNurseList(a.d);
+		// get new random nurse from list of avaliable nurses
+		do{
+			newNurseId = rooster.randNurse(avaliableNurses);
+		} while(newNurseId == a.n); 
+		return rooster.new Allocation(newNurseId, a.d, a.s);
 	}
 	
 }

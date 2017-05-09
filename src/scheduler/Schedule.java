@@ -24,12 +24,16 @@ public class Schedule {
 	ArrayList<Contract> contractsTypes = new ArrayList<Contract>();
 	
 	ArrayList<Nurse> nurses = new ArrayList<Nurse>();
+	// nurse requirements for specific day or shift
 	ArrayList<CoverRequirements> weeklyCoverRequirements = new ArrayList<CoverRequirements>() ;
 	
 	// schedule variables	
 	public int nursesCount = 0;
+	// number of differenet shifts
 	public int shiftTypeCount = 0;
+	// scheduling period in days (example 0-28)
 	public int period = 0;
+	// total shifts type in period 
 	public int allocationCount = 0;
 	
 	public Schedule(String _start, String _end){
