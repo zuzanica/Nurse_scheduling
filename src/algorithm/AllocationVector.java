@@ -142,7 +142,7 @@ public class AllocationVector implements Comparable<Object>{
 			}
 		}
 		// get random nurse from array of possible nurses
-		int randNurse = schedule.getRandNum(0, possibleNurses.size());
+		int randNurse = schedule.getRandNum(0, possibleNurses.size()-1);
 		int nurseId = possibleNurses.get(randNurse);
 		// return new allocation
 		return new Allocation(nurseId, day, shift);

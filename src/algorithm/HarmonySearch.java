@@ -61,6 +61,7 @@ public class HarmonySearch {
 		for (int i = 0; i < schedule.allocationCount; i++) {
 			double randHMCR = schedule.getRandNum();
 			if(randHMCR < HMCR){
+				System.out.println("Rooseter round "+ i + " : " + newRooster.toString());
 				//while(rooster is feasible)
 				// Memory Consideration 
 					int rooseterPos = schedule.getRandNum(0, HMS-1);
@@ -81,11 +82,13 @@ public class HarmonySearch {
 				}
 				// PAR1 <= U(0,1) < PAR2
 				else if(randPAR < PAR2){
-					//swapNurses();
+					a = swapNurses(a, newRooster); //TODO overit spravnot s fesible roosterom
+					//System.out.println("new alloc "+ a.toString());
+					//System.out.println("=============================================== ");
 				}
 				// PAR2 <= U(0,1) < PAR3
 				else if(randPAR < PAR3){
-					//snawDays();
+					//swapDays();
 				}
 				// PAR3 <= U(0,1) <= 1
 				else{
@@ -122,11 +125,50 @@ public class HarmonySearch {
 	Allocation move(Allocation a, AllocationVector rooster){
 		int newNurseId;
 		ArrayList<Integer> avaliableNurses  = rooster.getAvaliableNurseList(a.d);
-		// get new random nurse from list of avaliable nurses
+		// get new random nurse from list of alloc nurses
 		do{
 			newNurseId = rooster.randNurse(avaliableNurses);
 		} while(newNurseId == a.n); 
 		return rooster.new Allocation(newNurseId, a.d, a.s);
 	}
+	
+	/**
+	 * Switch shift with another nurse at day a.d
+	 * @param a
+	 * @param rooster
+	 * @return
+	 */
+	Allocation swapNurses(Allocation alloc, AllocationVector rooster){
+		int newNurseId = alloc.n;
+		ArrayList<Integer> availableNurses = new ArrayList<>();
+		for (int i = 0; i < rooster.x.size(); i++) {
+			Allocation a = rooster.x.get(i);
+			// find all working nurses at day a.d 
+			if(a.d == alloc.d){
+				availableNurses.add(a.n);
+			}
+		}
+		// select random nurse from available
+		do{
+			if(availableNurses.size() > 0){
+				newNurseId= rooster.randNurse(availableNurses);
+			}else{
+				break;
+			}		
+		} while( newNurseId == alloc.n );
+		
+		for (int i = 0; i < rooster.x.size(); i++) {
+			Allocation a = rooster.x.get(i);
+			//find allocation with new nurse and switch this nurse with alloc.n
+			if(a.d == alloc.d && a.n == newNurseId ){
+				//TODO overit spravnost na feasible roostery
+				//System.out.println("SWAP "+ alloc.toString() + " with " + a.toString());
+				a.n = alloc.n;
+				//System.out.println("changed alloc "+ a.toString());
+			}
+		}
+		return rooster.new Allocation(newNurseId, alloc.d, alloc.s);
+	}
+	
 	
 }
