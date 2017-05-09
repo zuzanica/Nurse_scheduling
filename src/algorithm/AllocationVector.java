@@ -128,7 +128,7 @@ public class AllocationVector implements Comparable<Object>{
 		}
 		//x.setFxWeight(vectorSum);
 		
-		return ;
+		return;
 	}
 	
 	public Allocation getNextFeasibleAllocation(int allocationPosition, int day, String shift){
