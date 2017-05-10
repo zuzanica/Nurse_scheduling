@@ -2,8 +2,9 @@ package algorithm;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
-import algorithm.AllocationVector.Allocation;
+import algorithm.Allocation;
 import requirements.Cover;
 import scheduler.Nurse;
 import scheduler.Schedule;
@@ -14,27 +15,6 @@ public class AllocationVector implements Comparable<Object>{
 	ArrayList<Allocation> x ;
 	int fx;
 	int[] softContraintsVolation;
-	
-	public class Allocation {	
-		int n,d; // nurse, date
-		String s; // shift type
-		double weight = 0.0;
-		
-		public Allocation(int _n, int _d, String _s ){
-			n = _n;
-			d = _d;
-			s = _s;
-		}
-		 
-		public void setWeight(double _w){
-			weight = _w;
-		}
-		
-		@Override
-	    public String toString(){
-			return "("+this.n+", "+this.d+ ", "+ this.s + " | "+ this.weight +")";
-		}
-	}
 	
 	public AllocationVector(Schedule schedule){
 		this.schedule = schedule;
@@ -73,7 +53,7 @@ public class AllocationVector implements Comparable<Object>{
 			
 			out += x.get(j).toString() + " , ";
 			if(j > 0 && j % 5 == 4){
-				;//out += "\n";
+				out += "\n";
 			}
 		}
 		
@@ -148,11 +128,60 @@ public class AllocationVector implements Comparable<Object>{
 		return new Allocation(nurseId, day, shift);
 	}
 	
-	// TODO
+	/**
+	 * Check hard constraint H2 (one nurse has assigned only one shift per day).
+	 * H1 is assumed as feasible.
+	 * @return true/false
+	 */
 	public boolean checkFeasibility(){
 		// sort
-		// ...
-		return false;
+		Collections.sort(x);
+		//System.out.println("Rooster: \n" + x.toString());
+		ArrayList<Integer> assignedNurses = new ArrayList<>();
+		
+		int day = 0;
+		for(int i = 0; i < x.size(); i++){	
+			Allocation a = x.get(i);
+			// new day starts, clear assigned nurses
+			if(a.d != day){
+				assignedNurses.clear();
+				day = a.d;
+			}
+			//System.out.println( assignedNurses.toString());
+			//check if nurse is already assigned at some day.  
+			
+			if(assignedNurses.contains(a.n)){
+				System.out.println("Incorrcet rooster, nurse " + a.n + " in already assigned at day " + day);
+				return false;
+			}else{
+				assignedNurses.add(a.n);
+			}
+		}
+		
+		//System.out.println("IS FEASIBLE.");
+		//System.out.println("===============================================");
+		return true;
+	}
+	
+	/**
+	 * Check if new allocation can be add into rooster
+	 * @return true/false
+	 */
+	public boolean willBeFeasible(Allocation alloc){
+		// sort
+		Collections.sort(x);
+		//System.out.println("Check allocation: " + alloc.toString());
+		for(int i = 0; i < x.size(); i++){	
+			Allocation a = x.get(i);
+			// find same nurse assigned at same day
+			if(a.d == alloc.d && alloc.n == a.n){
+				//System.out.println("Incorrcet rooster, nurse " + a.n + " in already assigned at day " + a.d);
+				return false;
+			}
+		}
+		
+		//System.out.println("ROOSTER WILL BE FEASIBLE.");
+		return true;
 	}
 	
 	/**
