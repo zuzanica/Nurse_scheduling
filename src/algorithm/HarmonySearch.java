@@ -14,29 +14,51 @@ import scheduler.Shift;
 
 public class HarmonySearch {
 	// constatnts set accortidn the study 
-	static final int HMS = 10;
+	static final int HMS = 100;
 	static final int LOOPLIMIT = HMS*5;
 	static final double HMCR = 0.99;
-	static final int NI = 1000;
+	static final int NI = 100000;
 	static final double PAR = 0.01;
 	static final double PAR1 = PAR/3;
 	static final double PAR2 = 2*PAR/3;
 	static final double PAR3 = PAR;
 	
-	
-	
-	 ArrayList<AllocationVector> HM = new ArrayList<AllocationVector>(); 
-	
+	ArrayList<AllocationVector> HM = new ArrayList<AllocationVector>(); 
 	Schedule schedule;
 	
 	public HarmonySearch(Schedule _schedule){
 		this.schedule = _schedule;
+		AllocationVector xWorst = null;
+		AllocationVector xNew = null;
 		// Step1. skipped, everything is initialized
-		// Step2. 
+		// Step2-part1 
 		inirializeHM();
-		// Step3. 
-		improviseNewHarmony();
-		// Step4.
+		Collections.sort(HM);
+		for(int i = 0; i < HMS; i++){	
+			System.out.println(HM.get(i).toString());
+		}
+		int ni = 0;
+		while(ni < NI){
+			System.out.println("Round:" + ni);
+			ni++;
+			// Step2-part2
+			Collections.sort(HM);
+			xWorst = HM.get(HM.size()-1);
+			/*for(int i = 0; i < HMS; i++){	
+				System.out.println(HM.get(i).toString());
+			}*/
+			// Step3. 
+			xNew = improviseNewHarmony();
+			// Step4.
+			updateHM(xWorst, xNew);
+			/*for(int i = 0; i < HMS; i++){	
+				System.out.println(HM.get(i).toString());
+			}*/
+		} // Step5. repeat
+		Collections.sort(HM);
+		System.out.println("Harmony algorithm finishned.");
+		System.out.println("Best solution is:");
+		System.out.println(HM.get(0).toString());
 	}
 		
 	public void inirializeHM(){
@@ -49,25 +71,31 @@ public class HarmonySearch {
 			xi.evaluateRooster();
 			HM.add(xi);
 		}
-		
+		/*
 		//sort vector
 		Collections.sort(HM);
 		for(int i = 0; i < HMS; i++){	
 			System.out.println(HM.get(i).toString());
 		}
+		*/
 		
 		System.out.println("HM initialization finished.");
+		return;
 	}
 	
-	public void improviseNewHarmony(){
+	public AllocationVector improviseNewHarmony(){
 		// x'
 		AllocationVector newRooster = new AllocationVector(schedule);
-		for (int i = 0; i < schedule.allocationCount; i++) {
-		//for (int i = 0; i < 15; i++) {	
-			do{
+		boolean skip;
+		//do while don t have feasible rooster
+		do{
+			skip = false;
+			//clear rooster from previous round
+			newRooster.clear();
+			for (int i = 0; i < schedule.allocationCount; i++) {
 				double randHMCR = schedule.getRandNum();
 				if(randHMCR < HMCR){
-				//System.out.println("Rooseter round "+ i + " : " + newRooster.toString());
+					//System.out.println("Rooseter round "+ i + " : " + newRooster.toString());
 					// Memory Consideration 
 					int controlVar = 0;
 					Allocation a = null;
@@ -82,14 +110,18 @@ public class HarmonySearch {
 						//System.out.println("Add HM Allocation "+ a.toString());
 						if(controlVar > LOOPLIMIT){
 							System.out.println("Bad vector start new"+ a.toString());
+							skip = true;
 							break;
 						}
 					}while(!newRooster.willBeFeasible(a));
+					
+					if(skip){
+						break;
+					}	
 					//System.out.println("Add allocation: " + a.toString());
 					//System.out.println("===============================================");
 					// add allocation a into new rooster
 					newRooster.addAllocation(a);
-					
 					
 					// Pitch adjustments
 					double randPAR = schedule.getRandNum();
@@ -135,12 +167,10 @@ public class HarmonySearch {
 						; // do nothing
 					}
 					
-			
-					
 				} else{
+					// Random Consideration
 					Allocation a;
 					do{
-						// Random Consideration
 						// get feasible Allocation
 						// find out Allocation position (day and shift);
 						Allocation tmpAllocation = HM.get(0).getX().get(i);
@@ -152,16 +182,21 @@ public class HarmonySearch {
 					//System.out.println("Add allocation from Random cons: " + a.toString());
 					newRooster.addAllocation(a);
 				}
-			}while(!newRooster.checkFeasibility());
-				/*System.out.println("===============================================");
-				System.out.println("ERROR END LOOP");
-				System.out.println("===============================================");
-				break;*/
-			
-		}
+			} // rooster created
+		}while(!newRooster.checkFeasibility() || (newRooster.getX().size() != schedule.allocationCount));
+
 		newRooster.evaluateRooster();
-		System.out.println("New rooster:\n" + newRooster.toString());
-		
+		//System.out.println("New rooster:\n" + newRooster.toString());
+		return newRooster;
+	}
+	
+	public void updateHM(AllocationVector xWorst, AllocationVector xNew){
+		if(xNew.getFxWeight() < xWorst.getFxWeight()){
+			HM.add(xNew);
+			HM.remove(xWorst);
+		}
+		//System.out.println("Memory update finished.");
+		return;
 	}
 	
 	/**

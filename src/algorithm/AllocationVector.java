@@ -46,6 +46,11 @@ public class AllocationVector implements Comparable<Object>{
 		return fx;
 	}
 	
+	public void clear(){
+		this.fx = 0;
+		this.x.clear();
+	}
+	
 	@Override
 	public String toString(){
 		String out = "[ ";
@@ -53,7 +58,7 @@ public class AllocationVector implements Comparable<Object>{
 			
 			out += x.get(j).toString() + " , ";
 			if(j > 0 && j % 5 == 4){
-				out += "\n";
+				;//out += "\n";
 			}
 		}
 		
@@ -134,6 +139,7 @@ public class AllocationVector implements Comparable<Object>{
 	 * @return true/false
 	 */
 	public boolean checkFeasibility(){
+		
 		// sort
 		Collections.sort(x);
 		//System.out.println("Rooster: \n" + x.toString());
