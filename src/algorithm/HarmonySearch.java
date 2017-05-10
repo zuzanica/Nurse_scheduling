@@ -14,7 +14,7 @@ import scheduler.Shift;
 
 public class HarmonySearch {
 	// constatnts set accortidn the study 
-	static final int HMS = 100;
+	static final int HMS = 1;
 	static final int LOOPLIMIT = HMS*5;
 	static final double HMCR = 0.99;
 	static final int NI = 100000;
@@ -37,28 +37,33 @@ public class HarmonySearch {
 		for(int i = 0; i < HMS; i++){	
 			System.out.println(HM.get(i).toString());
 		}
+		
+		/*
 		int ni = 0;
 		while(ni < NI){
-			System.out.println("Round:" + ni);
+			if(ni%10000 == 0){
+				System.out.println("Round:" + ni);
+			}
 			ni++;
 			// Step2-part2
 			Collections.sort(HM);
 			xWorst = HM.get(HM.size()-1);
-			/*for(int i = 0; i < HMS; i++){	
-				System.out.println(HM.get(i).toString());
-			}*/
+			//for(int i = 0; i < HMS; i++){	
+			//	System.out.println(HM.get(i).toString());
+			//}
 			// Step3. 
 			xNew = improviseNewHarmony();
 			// Step4.
 			updateHM(xWorst, xNew);
-			/*for(int i = 0; i < HMS; i++){	
-				System.out.println(HM.get(i).toString());
-			}*/
+			//for(int i = 0; i < HMS; i++){	
+			//	System.out.println(HM.get(i).toString());
+			//}
 		} // Step5. repeat
 		Collections.sort(HM);
 		System.out.println("Harmony algorithm finishned.");
 		System.out.println("Best solution is:");
 		System.out.println(HM.get(0).toString());
+		*/
 	}
 		
 	public void inirializeHM(){
@@ -209,12 +214,10 @@ public class HarmonySearch {
 		int newNurseId;
 		Allocation a = rooster.getX().get(rooster.getX().size()-1);
 		ArrayList<Integer> avaliableNurses  = rooster.getAvaliableNurseList(a.d);
-		//System.out.println( avaliableNurses.toString());
 		// get new random nurse from list of alloc nurses
 		do{
 			newNurseId = rooster.randNurse(avaliableNurses);
 		} while(newNurseId == a.n); 
-		//System.out.println("New nurse :"  +a.n);
 		a.n = newNurseId;
 		return a;
 	}
@@ -248,9 +251,7 @@ public class HarmonySearch {
 			Allocation a = rooster.x.get(i);
 			//find allocation with new nurse and switch this nurse with alloc.n
 			if(a.d == alloc.d && a.n == nurseId ){
-				//System.out.println("SWAP "+ alloc.toString() + " with " + a.toString());
 				a.n = alloc.n;
-				//System.out.println("changed alloc "+ a.toString());
 			}
 		}
 		alloc.n = nurseId;

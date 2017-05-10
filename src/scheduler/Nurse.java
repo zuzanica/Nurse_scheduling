@@ -20,6 +20,45 @@ public class Nurse {
 			date = d;
 			shiftType = st;
 		}
+		
+		public int getDate() {
+			return date;
+		}
+		
+		public String getShiftType() {
+			return shiftType;
+		}
+		
+		public boolean contains(int date, String shift){
+			return date == this.date && shift.equals(this.shiftType) ? true : false;
+		}
+		
+		public String toString() {
+			String out = "(" + date + ", " + shiftType + ")";
+			
+			return out;
+		}
+		
+		
+		@Override
+		public boolean equals(Object object)
+		{
+		    boolean isEqual= false;
+
+		    if (object != null && object instanceof FreeShift)
+		    {
+		        isEqual = (this.date == ((FreeShift) object).date  && shiftType.equals(((FreeShift) object).shiftType) );
+		    }
+
+		    return isEqual;
+		}
+
+		@Override
+		public int hashCode() {
+		    return this.date;
+		}
+		
+		
 	}
 	
 	public Nurse(int _id, Contract c, ArrayList<String> _skills ){
@@ -39,6 +78,13 @@ public class Nurse {
 	
 	public Contract getContract() {
 		return contract;
+	}
+	
+	public ArrayList<Integer> getFreeDayRequirements() {
+		return freeDayRequirements;
+	}
+	public ArrayList<FreeShift> getFreeShiftRequirements() {
+		return freeShiftRequirements;
 	}
 
 	@Override
