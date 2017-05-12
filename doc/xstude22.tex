@@ -25,7 +25,7 @@ xstude22@stud.fit.vutbr.cz}
 \section{Úvod}
 
 Táto práca popisuje implementáciu riešenia Nurse rostering problému resp. Nurse scheduling problému (NSP)\ref{NurseScheduling}. Ide o problém priradenia zdravotných sestier na pracovné smeny, počas plánovaného obdobia. Obecne je komplikované jednoznačne vyriešiť tento problém, kvôli veľkému množstvu obmedzení pri plánovaní rozpisu. Každý naplánovaný rozvrh musí byť splniteľný na základne povinných (hard) obmedzení. Cieľom je nájsť časový rozvrh, ktorý bude spĺňať všetky povinné omedzenie a súčasne porušovať čo najmenej nepovinných omedzení.\\
-
+\\
 Existuje mnoho rôznych spôsobov riešení, napríklad pomocou Matematických metód \cite{Math}, Genetických algoritmov \cite{Gen}, Aproximačných metód\cite{Apr} a iných. V tejto práci je popísaný spôsob implementácie pomocou algoritmu Harmony search, založenom na vedeckej publikácii \cite{MainArticle}. Algoritmus Harmony search\cite{HS} je populačný algoritmus, ktorý napodobňuje zdokonaľovací proces hudobného vystúpenia. Tento algoritmus sa ukazuje ako efektívny pri riešení mnohých optimalizačných úloh. Testovanie je vykonané na dátovej sade zverejnenej pre účely Interationa Nurse Rostering Competition 2010 (INRC 2010) \cite{MainArticle}. Výsledky dosiahnuté v tejto práci sú porovnané s výsledkami sútaže a zároveň s výsledkami vedeckej publikácie. \\
 
 V prvej časti práce sú popísané dôležité fakty a informácie o riešenom probléme a implementovanom harmonickom algoritme. Druhá časť popisuje vytvorený model a implementáciu riešenia. V poslednej časti sú popísané vykonané experimenty a ich porovnanie so vzorovou publikáciu a súťažným riešením. \\
@@ -157,7 +157,6 @@ Nurse rostering problém je možné formálne popísať ako:
 \item $K = \{k_1, k_2, \dots, k_K \} $ : množina znalostí, ktoré môžu sestru nadobúdať.
 \item $S = \{s_1, s_2, \dots, s_T \} $ : množina typov pracovných smien.
 \end{itemize}
-
 Požiadavky (Cover requirements, \textbf{CR}) na plánované dni sú definované formou matice, obsahujúcej zdravotné sestry potrebné pre smenu $t \in S$ v deň $j \in D$. Každý deň sa skladná z niekoľkých typov pracovných smien. Matica $DF$ resp. $DO$ definuje zdravotnú sestru $i \in N$, a deň  $j \in D$, ktorý daná sestra vyžaduje resp. nevyžaduje priradenie na ľubovolnú smenu. Podobne matice $SF$ resp. $SO$ definujú zdravotnú sestru $i \in N$, a deň  $j \in D$, a smenu $t \in S$, ktorú daná sestra vyžaduje resp. nevyžaduje.\\
 
 \subsection{Základný princíp modelu}
@@ -189,7 +188,7 @@ Táto sekcia popisuje spôsob implementácie riešenia od inicializácie až po 
 \subsection{Implementácia algoritmu Harmony search}
 Dátové štruktúry algoritmy sú v implementované nasledovne. Trieda \texttt{AllocationVector} predstavuje jedno splniteľné riešenie, trieda obsahuje premennú $fx$ a pole prvkov Allocation. \texttt{Allocation} je trieda, prezentujúca trojicu (n,s,d).
 Implementovaný algoritmus postupuje presne podla pseudokódu\ref{alg1}. Pri inicializácii HM sa náhodne vygeneruje HMS objektov AllocationVector, ktoré sú uložené v poli predstavujúcom HM. Pre každú smenu v každom dni náhone vybraných požadovaný počet sestier. Sestry sú dopredu náhodne vybrané na všetky smeny v jeden deň, aby nedošlo k porušeniu obmedzenia H2. Po inicializácii sa pre každý vektor, spočíta podla rovnice \ref{eq1} penalizačná hodnota \texttt{fx}. Výpočet hodnoty \texttt{fx} tvorí najdôležitejšiu a časovo najnáročnejšiu operáciu celej implementácie. Postupne sú počítané všetky všetky porušenia nepovinných obmedzení. Pre každé obmedzenie je potrebné prejsť rozvrh aspoň jeden krát. Po výpočte sú vektory zoradené zostupne a je vybraný vektor z najhorším ohodnotením.\\
-
+\\
 Počas vylepšenie pamäte sa vytvára nový AllocaionVector v troch fázach Memory Consideration, Random Consideration a Picht Adjustment. Na začiatku prebehne Memory Consiration s pravdepodobnosťou HMCR. V tomto kroku sa postupne vyberá náhodná trojica $x = (n,s,d)$ z pamäte HM na pozícií \texttt{i}. Random Consideration prebehne s pravdepodobnosťou $HCMR - 1$. Počas Random Consideration je na smenu $s$ v deň $d$ priradená náhodná sestra, priradením ktorej sa neporuší obmedzenie H2. Vo fázy Pitch Adjusment reprezentovaný konštantou PAR je rozdelený na tri časti $PAR1 = PAR/3$, $PAR2 = 2*PAR/3$, $PAR3 = PAR$.  Na základe každej časti je vykonaná jedna z akcií move(), swapNurse(), swapDays(). Výber akcie je zobrazené na \ref{eq4}. Po zostavení a ohodnotení nového vektoru je vektor porovnaný z najhorším vektorom v HM. Ak je jeho penalizačná hodnota lepšie ako hodnota najhoršieho vektoru je vektor vymenený za vektor v HM. Tento proces sa opakuje počas NI iterácií. 
 
 \begin{center}
