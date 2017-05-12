@@ -53,29 +53,19 @@ public final class XMLParser {
 	public static Schedule parse(){
 		Schedule schedule;
 		try{
-			
 			//Get StartDate, EndDate
 			NodeList startD = (NodeList) doc.getElementsByTagName("StartDate");
 			NodeList endD = (NodeList) doc.getElementsByTagName("EndDate");
 			schedule = new Schedule( startD.item(0).getTextContent(), endD.item(0).getTextContent());	
 
 			parseSkills(schedule);
-			
 			parseShifts(schedule);
-			
 			parseUnwantedPatterns(schedule);
-			
 			parseContracts(schedule);
-			
 			parseNurses(schedule);
-			
 			parseCoverRequirements(schedule);
-			
 			patrseDayRequirements(schedule);
-			
 			patrseShiftRequirements(schedule);
-			
-			System.out.println("File loaded...");
 			
 		} catch (Exception e) {
 			System.err.println("Problem in XML FILE READING");
