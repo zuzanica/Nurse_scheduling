@@ -198,10 +198,10 @@ public class AllocationVector implements Comparable<Object>{
 	 */
 	protected int evaluateRooster(){
 		// check S1,S2 constraint	
-		getS1S2violations();
+		getMaxMinAssignViolations();
 		
 		// check S3,S4 constraint
-		getS3S4violations();
+		getMaxMinConseqDayViolations();
 		
 		// check S5,S6 constraint
 		getMaxMinFreeDayVolations();
@@ -231,7 +231,7 @@ public class AllocationVector implements Comparable<Object>{
 	/**
 	 * Count soft constraints S1, S2.
 	 */
-	private void getS1S2violations(){
+	private void getMaxMinAssignViolations(){
 		// count Max,Min number of assigments
 		// loop all nurses		
 		for (int i = 0; i < schedule.nursesCount; i++) {
@@ -256,7 +256,7 @@ public class AllocationVector implements Comparable<Object>{
 		}
 	}
 	
-	private void getS3S4violations(){			
+	private void getMaxMinConseqDayViolations(){			
 		int[] consWorkDayOld = new int[schedule.nursesCount];
 		Arrays.fill(consWorkDayOld,new Integer(0));
 		int[] consWorkDayNew = new int[schedule.nursesCount];
@@ -392,7 +392,7 @@ public class AllocationVector implements Comparable<Object>{
 			} else{
 				for (int j = 0; j < workWeekends.length; j++) {
 					if(workWeekends[j] == 1){
-						completeWeekendsPenalty[j] += 2;
+						completeWeekendsPenalty[j] += 1;
 					}
 				}
 				//new week started, set workWeekends to 0

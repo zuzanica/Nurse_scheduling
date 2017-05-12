@@ -14,11 +14,11 @@ import scheduler.Shift;
 
 public class HarmonySearch {
 	// constatnts set accortidn the study 
-	static final int HMS = 1;
-	static final int LOOPLIMIT = HMS*5;
+	static final int HMS = 100;
+	static final int LOOPLIMIT = HMS*2;
 	static final double HMCR = 0.99;
-	static final int NI = 100000;
-	static final double PAR = 0.01;
+	static final int NI = 10000;
+	static final double PAR = 0.1;
 	static final double PAR1 = PAR/3;
 	static final double PAR2 = 2*PAR/3;
 	static final double PAR3 = PAR;
@@ -32,13 +32,13 @@ public class HarmonySearch {
 		AllocationVector xNew = null;
 		// Step1. skipped, everything is initialized
 		// Step2-part1 
+		/*
 		inirializeHM();
 		Collections.sort(HM);
 		for(int i = 0; i < HMS; i++){	
-			System.out.println(HM.get(i).toString());
+			System.out.println(HM.get(i).getFxWeight());
 		}
 		
-		/*
 		int ni = 0;
 		while(ni < NI){
 			if(ni%10000 == 0){
@@ -63,7 +63,13 @@ public class HarmonySearch {
 		System.out.println("Harmony algorithm finishned.");
 		System.out.println("Best solution is:");
 		System.out.println(HM.get(0).toString());
+		for(int i = 0; i < HMS; i++){	
+			System.out.println(HM.get(i).getFxWeight());
+		}
 		*/
+		System.out.println("Expected Solution looks like: ");
+		test();
+		
 	}
 		
 	public void inirializeHM(){
@@ -114,7 +120,7 @@ public class HarmonySearch {
 						a = historicalRooseterInHM.getX().get(i).clone();
 						//System.out.println("Add HM Allocation "+ a.toString());
 						if(controlVar > LOOPLIMIT){
-							System.out.println("Bad vector start new"+ a.toString());
+							//System.out.println("Bad vector start new"+ a.toString());
 							skip = true;
 							break;
 						}
@@ -199,8 +205,9 @@ public class HarmonySearch {
 		if(xNew.getFxWeight() < xWorst.getFxWeight()){
 			HM.add(xNew);
 			HM.remove(xWorst);
+			System.out.println("Memory updated: " + xWorst.getFxWeight());
+			System.out.println("replaced with: " + xNew.getFxWeight());
 		}
-		//System.out.println("Memory update finished.");
 		return;
 	}
 	
@@ -320,5 +327,29 @@ public class HarmonySearch {
 		//System.out.println("changed alloc "+ randAllocation.toString());
 		return alloc; 
 	 }
+	
+	public void test(){
+	AllocationVector tstX = new AllocationVector(schedule);
+	int k = 0;
+	int[] n = {3,4,1,0,4,5,3,2,1,0,5,4,1,2,1,0,5,4,3,2,0,1,4,3,3,2,3,0,1,5,2,3,1,0,5};
+	for(int i = 0; i < 7; i++){
+		for(int j = 0; j < 2; j++){
+			tstX.getX().add(new Allocation(n[k],i,"E"));
+			k++;
+		}
+			
+		for(int j = 0; j < 2; j++){
+			tstX.getX().add(new Allocation(n[k],i,"L"));
+			k++;
+		}
+		tstX.getX().add(new Allocation(n[k],i,"N"));
+		k++;
+	}
+	
+	//System.out.println("Tested rooster: " + tstX.toString());
+	tstX.evaluateRooster();
+	System.out.println("Tested rooster: " + tstX.toString());		
+	}
+	
 	
 }
