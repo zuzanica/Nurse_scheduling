@@ -59,7 +59,7 @@ public class AllocationVector implements Comparable<Object>{
 			
 			out += x.get(j).toString() + " , ";
 			if(j > 0 && j % 5 == 4){
-				out += "\n";
+				//;out += "\n";
 			}
 		}
 		
@@ -209,19 +209,23 @@ public class AllocationVector implements Comparable<Object>{
 		// check S7
 		completeWeekends();
 		
+		// check S8
+		identicalWeekends();
+		
 		// check S9
 		twoFreeDaysAfterNight();
 		
 		// check S10, S12
 		dayOffShiftOff();
 		
-		// S8 -- Identical complete weekends
-		// S11 S13 -- day on, shift on
-		// S14 -- alternative skills
 		// S15 -- unwanted patterns
 		
+		// this patterns don t need to be implemented, they are not tested in datasets
+		// S11 S13 -- day on, shift on
+		// S14 -- alternative skills 
+		
 		for (int i = 0; i < softContraintsVolation.length; i++) {
-			System.out.println("Total S" + i + " violation " + softContraintsVolation[i]);
+			//System.out.println("Total S" + i + " violation " + softContraintsVolation[i]);
 			fx +=  softContraintsVolation[i];
 		}
 		
@@ -251,7 +255,7 @@ public class AllocationVector implements Comparable<Object>{
 			//System.out.println("Nurse " + n.id + " S2 violation " +  (minAssigmentns - scheduledAssigments));
 			// total cost for S1 constraint
 			softContraintsVolation[0] += (n.getContract().getWeight1()* Math.max( scheduledAssigments - maxAssigmentns, 0));
-			//total cost for S2 constraint
+			// total cost for S2 constraint
 			softContraintsVolation[1] += (n.getContract().getWeight2()* Math.max( minAssigmentns - scheduledAssigments, 0));
 		}
 	}
@@ -303,7 +307,8 @@ public class AllocationVector implements Comparable<Object>{
 		for (int j = 0; j < minConsWorkTotal.length; j++) {
 			softContraintsVolation[2] += consWorkTotal[j]; 
 			softContraintsVolation[3] += minConsWorkTotal[j]; 
-			//System.out.println("Nurse " +j+ " S4 violation-" +  minConsWorkTotal[j]);
+			//System.out.println("Nurse " +j+ " S3 violation " +  consWorkTotal[j]);
+			//System.out.println("Nurse " +j+ " S4 violation " +  minConsWorkTotal[j]);
 		}
 	}
 	
@@ -403,7 +408,7 @@ public class AllocationVector implements Comparable<Object>{
 		for (int j = 0; j < workWeekends.length; j++) {
 			//System.out.println("Nurse " +j+ " last work weekends days " +  workWeekends[j]);
 			if(workWeekends[j] == 1){
-				completeWeekendsPenalty[j] += 2;
+				completeWeekendsPenalty[j] += 1;
 			}
 			softContraintsVolation[7] += completeWeekendsPenalty[j]; 
 			//System.out.println("Nurse " +j+ " S7 violation " +  completeWeekendsPenalty[j]);
@@ -411,9 +416,51 @@ public class AllocationVector implements Comparable<Object>{
 		
 	}
 	
-	public void twoFreeDaysAfterNight(){
+	private void identicalWeekends(){
+		String[] workSaturady = new String[schedule.nursesCount];
+		Arrays.fill(workSaturady,new String(""));
+		String[] workSunday = new String[schedule.nursesCount];
+		Arrays.fill(workSunday,new String(""));
+		
+		// vector of penalty for nurses, when nurse work only one day of weekend 
+		int[] identicaleWeekendsPenalty = new int[schedule.nursesCount];
+		Arrays.fill(identicaleWeekendsPenalty,new Integer(0));
+
+		for (int i = 0; i < x.size(); i++) {
+			Allocation a = x.get(i);
+			// find only Saturday
+			if(a.d %  7 == 5 || a.d %  7 == 6 ){
+				workSaturady[a.n] = a.s;
+			} 
+			// find only Sunday 
+			if( a.d %  7 == 6 ){
+				workSunday[a.n] = a.s;
+			}
+			// start of the new week
+			if( a.d % 7 == 0){
+				for (int j = 0; j < workSaturady.length; j++) {
+					if(!(workSaturady[j].equals(workSunday[j])) ){
+						identicaleWeekendsPenalty[j] += 1;
+					}
+					workSaturady[j] = "";
+					workSunday[j] = "";
+				}
+			}
+		}
+		// count total S8 violation penalty
+		for (int j = 0; j < identicaleWeekendsPenalty.length; j++) {
+			softContraintsVolation[8] += identicaleWeekendsPenalty[j]; 
+			//System.out.println("Nurse " +j+ " S8 violation " +  identicaleWeekendsPenalty[j]);
+		}
+	}
+	
+	private void twoFreeDaysAfterNight(){
 		int[] twoFreeDays = new int[schedule.nursesCount];
 		Arrays.fill(twoFreeDays,new Integer(0));
+		
+		// vector of nurses with total working days after night shift 
+		int[] workDayAfterNight = new int[schedule.nursesCount];
+		Arrays.fill(workDayAfterNight,new Integer(0));
 		
 		// vector of nurses with total working days after night shift 
 		int[] workDayAfterNightTotal = new int[schedule.nursesCount];
@@ -426,13 +473,18 @@ public class AllocationVector implements Comparable<Object>{
 			if(a.d != day ){
 				day = a.d;
 				for(int j=0 ; j < twoFreeDays.length; j++ ){
+					if(workDayAfterNight[j] > 0){
+						twoFreeDays[j] = 0;
+						workDayAfterNight[j] = 0;
+						workDayAfterNightTotal[j] +=1;
+					}
 					twoFreeDays[j] = Math.max(twoFreeDays[j]-1, 0);
 				}
 			}
 			// check if nurse need free day
 			if((int) twoFreeDays[a.n] > 0){
 				// increase S9 nurse violation
-				workDayAfterNightTotal[a.n]++;
+				workDayAfterNight[a.n]++;
 			}
 			// if nurse a.n has assigned night shift
 			if(a.s.equals("N")){

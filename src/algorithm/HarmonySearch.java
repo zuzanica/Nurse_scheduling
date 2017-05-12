@@ -17,8 +17,8 @@ public class HarmonySearch {
 	static final int HMS = 100;
 	static final int LOOPLIMIT = HMS*2;
 	static final double HMCR = 0.99;
-	static final int NI = 10000;
-	static final double PAR = 0.1;
+	static final int NI = 150000;
+	static final double PAR = 0.01;
 	static final double PAR1 = PAR/3;
 	static final double PAR2 = 2*PAR/3;
 	static final double PAR3 = PAR;
@@ -32,7 +32,7 @@ public class HarmonySearch {
 		AllocationVector xNew = null;
 		// Step1. skipped, everything is initialized
 		// Step2-part1 
-		/*
+		
 		inirializeHM();
 		Collections.sort(HM);
 		for(int i = 0; i < HMS; i++){	
@@ -61,12 +61,11 @@ public class HarmonySearch {
 		} // Step5. repeat
 		Collections.sort(HM);
 		System.out.println("Harmony algorithm finishned.");
-		System.out.println("Best solution is:");
-		System.out.println(HM.get(0).toString());
 		for(int i = 0; i < HMS; i++){	
-			System.out.println(HM.get(i).getFxWeight());
+			System.out.println(HM.get(i).toString());
 		}
-		*/
+		System.out.println("Best solution is: " + HM.get(0).getFxWeight());
+		System.out.println(HM.get(0).toString());
 		System.out.println("Expected Solution looks like: ");
 		test();
 		
@@ -205,8 +204,8 @@ public class HarmonySearch {
 		if(xNew.getFxWeight() < xWorst.getFxWeight()){
 			HM.add(xNew);
 			HM.remove(xWorst);
-			System.out.println("Memory updated: " + xWorst.getFxWeight());
-			System.out.println("replaced with: " + xNew.getFxWeight());
+			//System.out.println("Memory updated: " + xWorst.getFxWeight());
+			//System.out.println("replaced with: " + xNew.getFxWeight());
 		}
 		return;
 	}
