@@ -1,0 +1,250 @@
+\documentclass[a4paper, 14pt]{article}
+\usepackage[left=2cm,text={17cm, 24cm},top=1.5cm]{geometry}
+\usepackage[utf8x]{inputenc} 
+\usepackage[czech]{babel}
+\usepackage[IL2]{fontenc}
+\providecommand{\uv}[1]{\quotedblbase #1\textquotedblleft}
+\usepackage{graphicx}
+\usepackage{algorithmic}
+\usepackage[ruled,longend,noline,czech,linesnumbered,]{algorithm2e}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\usepackage{float}
+\usepackage{url}
+%\usepackage{times}
+\begin{document}
+
+\title{Simulační nástroje a techniky\\
+Nurse rostering problem}
+\author{Zuzana Studená\\ 
+xstude22@stud.fit.vutbr.cz}
+\date{\today}
+
+\maketitle
+
+\section{Úvod}
+
+Táto práca popisuje implementáciu riešenia Nurse rostering problému resp. Nurse scheduling problému (NSP)\ref{NurseScheduling}. Ide o problém priradenia zdravotných sestier na pracovné smeny, počas plánovaného obdobia. Obecne je komplikované jednoznačne vyriešiť tento problém, kvôli veľkému množstvu obmedzení pri plánovaní rozpisu. Každý naplánovaný rozvrh musí byť splniteľný na základne povinných (hard) obmedzení. Cieľom je nájsť časový rozvrh, ktorý bude spĺňať všetky povinné omedzenie a súčasne porušovať čo najmenej nepovinných omedzení.\\
+
+Existuje mnoho rôznych spôsobov riešení, napríklad pomocou Matematických metód \cite{Math}, Genetických algoritmov \cite{Gen}, Aproximačných metód\cite{Apr} a iných. V tejto práci je popísaný spôsob implementácie pomocou algoritmu Harmony search, založenom na vedeckej publikácii \cite{MainArticle}. Algoritmus Harmony search\cite{HS} je populačný algoritmus, ktorý napodobňuje zdokonaľovací proces hudobného vystúpenia. Tento algoritmus sa ukazuje ako efektívny pri riešení mnohých optimalizačných úloh. Testovanie je vykonané na dátovej sade zverejnenej pre účely Interationa Nurse Rostering Competition 2010 (INRC 2010) \cite{MainArticle}. Výsledky dosiahnuté v tejto práci sú porovnané s výsledkami sútaže a zároveň s výsledkami vedeckej publikácie. \\
+
+V prvej časti práce sú popísané dôležité fakty a informácie o riešenom probléme a implementovanom harmonickom algoritme. Druhá časť popisuje vytvorený model a implementáciu riešenia. V poslednej časti sú popísané vykonané experimenty a ich porovnanie so vzorovou publikáciu a súťažným riešením. \\
+
+
+\section{Rozbor témy a použitých metód}
+V tejto téme sú popísané všetky dôležité informácie ohľadom riešeného problém. Druhá podsekcia popisuje algoritmus hľadania harmónie. 
+
+\subsection{Nurse Rostering Problem}
+
+Nurse Rostering Problem rieši priraďovanie zdravotných sestier do smien napr. na základe počtu sestier, typu smien, znalostí sestier typu pracovného kontraktu a iných. Preto je nutné mať presne definované zdravotné sestry, ich pracovné skúsenosti, požiadavky na konkrétne dni alebo smeny. Okrem toho je nutné poznať pracovný kontrakt, ktorý obsahuje definíciu úväzku, maximálny,minimálny počet pracovných resp. volných dní a iné. Pridelenie sestry nesmie byť v rozpore s pracovnou, nemocničnou alebo štátnou politikou, zároveň by mal spĺňať spravodlivé radenie sestier na smeny a požiadavky sestier \ref{NursePolicies}. Tieto požiadavky sú zahrnuté prostredníctvom povinných (\textbf{Hard}) a nepovinných obmedzení (\textbf{Soft constraints}). Povinné obmedzenie musia byť vždy splnené. Nesplneným povinných obmedzení sa stáva rozvrh neplatným. Tieto obmedzenia musia byť dodržané aj za cenu porušenia niekoľkých nepovinných obmedzení. Nepovinné obmedzenia sú požiadavky, ktorých splnenie nemá vplyv na splniteľnosť rozvrhu. Najčastejšie sa jedná o požiadavky sestier alebo požiadavky na vylepšenie rozvrhov. Všeobecne je nemožné nájsť rozvrh, ktorý splňuje všetky povinné a nepovinné obmedzenia, jedná sa NP úplný problém \ref{NPProblem}. Podľa \ref{MainArticle} sú v práci uvažované následujúce povinné (\textbf{H}) a nepovinné (\textbf{S}) obmedzenia:
+
+\newpage
+\textbf{Povinné obmedzenia}
+\begin{itemize}
+\item H1: Na každú smenu musí byť priradená zdravotná sestra.
+\item H2: Každý zdravotná sestra môže robiť iba jeden krát denne.
+\end{itemize}
+\par\textbf{Nepovinné obmedzenia}
+\begin{itemize}
+\item S1: Maximálny a minimálny počet pridelených pracovných dní.
+\item S2: Maximálny a minimálny počet pridelených pracovných dní v rade.
+\item S3: Maximálny a minimálny počet volných dní v rade.
+\item S4: Celé víkendy.
+\item S6: Dva voľné dni po nočnej smene.
+\item S7: Požadovaný volný deň.
+\item S8: Požadovaná voľná smena.
+%\item S9: Aleternatívne znalosti.
+\item S10: Nežiadúce plány.
+\end{itemize}
+Podrobný popis jednotlivých obmedzení je popísaný v pravidlách INRC 2010 \ref{Pravidla}, matematický popis je možné nájsť v \ref{MathNS}. Na základe obmedzení je možné každý naplánovaný rozvrh ohodnotiť funkciu \ref{eq1}. Funkcia počíta hodnotu penalizácie v prípade, že bude zvolený plán $x$. Hodnota $s$ značí index nepovinného obmedzenia, $c_s$ penalizačnú váhu za porušenie obmedzenia $s$, a $g_s(x)$ je celkový počet priestupkov, ktoré nastanú pre všetky zdravotné sestry v rozvrhu  $x$. 
+\begin{eqnarray}
+\label{eq1}
+min G(x) = {\sum_{s=1}^{10} c_s \cdot g_s(x)}
+\end{eqnarray}
+
+\subsection{Algoritmus Harmony Search}
+Harmony Search je heuristický optimalizačný algoritmus, ktorý počíta z množinou hodnôt ohodnotených na základe objektívnej funkcie. Algoritmus zobrazuje pseudokód \ref{alg1}. V prvom kroku sú inicializované parametre \textbf{HMCR} (Harmony memory consideration rate), \textbf{HM} (Harmony memory), \textbf{HMS}, \textbf{PAR}(Pitch adujstment), \textbf{NI}(Number of iterations) algoritmu a je stanovená objektívna funkcia pre výpočet najlepších riešení. V druhom kroku je vytvorená a inicializovaná HM. Harmony memory je matica vektorov riešení. Z matice je vybraný vektor z najhorším ohodnotením. Krok tri vylepšuje vytvorenú HM. V závislosti od konštánt HMCR a PAR je vytvorený nový vektor zostavený z hodnôt v HM, alebo nových náhodných hodnôt. Po zotavení nového vektoru je vektor ohodnotený podla objektívnej funkcie. V prípade, ak je tento vektor lepší ako najhorší vektor z HM, je v kroku štyri najhorší vektor nahradený novým vektorom. Tento cyklus sa opakuje počas NI iterácií. Viac podrobností o algoritme je možné nájsť v \ref{MainArticle}.\\
+
+
+\begin{algorithm}[H]
+\caption{Pseudokód algoritmu Harmony Search.}
+\label{alg1}
+\SetKwInput{Step}{Krok1} 
+\SetKwInput{Stepa}{Krok2} 
+\SetKwInput{Stepb}{Krok3} 
+\SetKwInput{Stepc}{Krok4} 
+\SetKwInput{Stepd}{Krok5} 
+\SetNlSty{}{}{:} 
+\SetNlSkip{-1.2em}
+\SetInd{1em}{1em}
+
+\BlankLine
+\Step{\textbf{Inicializácia konštánt}}
+\BlankLine
+\Indp \Indp
+	Inicializácia vstupných dát a konštánt HMCR, PAR, NI, HMS.\\
+\BlankLine
+
+\Indm \Indm
+\Stepa{\textbf{Inicializácia HM}}
+\BlankLine
+\Indp \Indp
+	Zostavia sa vektory riešení $x$ vstupných dát $HM = \{x^1,x^2,..., x^n\}$\\
+	Vyhodnotí sa najhorší vektor $x \in  \{x^1,x^2,..., x^n\}$\\
+\BlankLine
+
+\Indm \Indm
+\Stepb{\textbf{Vylepšenie HM}}
+\BlankLine
+\Indp \Indp
+	$x' = \phi$\\
+	\For{$i=0$ \textnormal{to} $N$}
+    {
+    	
+    	\eIf{$(U(0,1) \leq HMCR)$}
+    	{
+			$x'_i \in  \{x^1,x_i^2,..., x_i^n\}$\\
+			\If{$(U(0,1) \leq PAR)$}{
+				$x'_i = v_{i,k\pm m}$\\
+			}
+		}			
+		{
+			$x'_i \in  X_i$\\
+							    			
+		}
+		
+    }
+\BlankLine
+
+\Indm \Indm
+\Stepc{\textbf{Aktualizácia HM}}
+\BlankLine
+\Indp \Indp
+	\If{$(f(x') < x^{worst}))$}{
+		pridaj do $x'$ do HM\\
+		odober $x^{worst}$ z HM\\
+	}
+\BlankLine
+
+\Indm \Indm
+\Stepd{\textbf{Koniec algoritmu}}
+\BlankLine
+\Indp \Indp
+	\While{i $<$ NI}{	
+		Krok3, Krok4
+	}
+\BlankLine
+\end{algorithm}
+
+
+%TODO pozriet v kniznici v nejakej knihe a dorobit podla toho
+%\begin{figure}
+%	\centering
+%	\label{schema}
+%	\includegraphics[]{schema}
+%	\caption{Schéma Enumeration sort, prevzaté z prednášky predmetu PRL, FIT VUTBR. }
+%\end{figure}
+
+\section{Koncepcia modelu a simulátoru}
+%Práca popisuje hľadanie riešenia pomocou algoritmu Harmony search s tohoto dôvodu je popísaný spôsob prevedenia reálneho problému na simulačný model \cite{Peringer}.
+Sekcia je založená na \ref{MainArticle}, \ref{Math}. Formálne popisuje Nurse rostering problém a zároveń spôsob prevedenia reálneho problému na simulačný model \cite{Peringer}, ktorý používa algoritmus Harmony search k nájdeniu výsledkov.
+\subsection{Formálny popis problému}
+Nurse rostering problém je možné formálne popísať ako:
+\begin{itemize}
+\item $N = \{n_1, n_2, \dots, n_I \} $ : množina zdravotných sestier, ktoré majú rôzne znalosti.
+\item $C = \{c_1, c_2, \dots, c_R \} $ : množina pracovných kontraktov, každá sestra má pridelený práve jeden pracovný kontrakt.
+\item $D = \{d_1, d_2, \dots, d_M \} $ : množina plánovaných dní, každý deň sa skladná z niekoľkých smien.
+\item $K = \{k_1, k_2, \dots, k_K \} $ : množina znalostí, ktoré môžu sestru nadobúdať.
+\item $S = \{s_1, s_2, \dots, s_T \} $ : množina typov pracovných smien.
+\end{itemize}
+
+Požiadavky (Cover requirements, \textbf{CR}) na plánované dni sú definované formou matice, obsahujúcej zdravotné sestry potrebné pre smenu $t \in S$ v deň $j \in D$. Každý deň sa skladná z niekoľkých typov pracovných smien. Matica $DF$ resp. $DO$ definuje zdravotnú sestru $i \in N$, a deň  $j \in D$, ktorý daná sestra vyžaduje resp. nevyžaduje priradenie na ľubovolnú smenu. Podobne matice $SF$ resp. $SO$ definujú zdravotnú sestru $i \in N$, a deň  $j \in D$, a smenu $t \in S$, ktorú daná sestra vyžaduje resp. nevyžaduje.\\
+
+\subsection{Základný princíp modelu}
+Ako bolo spomenuté v \ref{sectionHSalg}, algoritmus Harmony search používa pamäť Harmony memory. Táto pamäť je reprezentovaná ako matica \ref{eq2} vektorov $x'$ reprezentujúcich splniteľné riešenia a  hodnoty $f(x')$ reprezentujúce penalizačnú hodnotu riešenia $x'$ . Vektor $x'$ sa skladá z trojíc $x = (n,s,d)$, kde n značí zdravotnú sestru $n \in N$ priradenú na smenu $s \in S$ v deň $d \in D$. Dĺžku vektora možno vypočítať podla vzťahu \ref{eq3}.   
+
+\begin{center}
+\begin{eqnarray}
+\label{eq2}
+\mathbf{HM}=\left[
+\begin{array}{ccccc}
+x_1^1 & x_2^1 & \ldots & x_E^1 & f(x^1)\\
+x_1^2 & x_2^2 & \ldots & x_E^2 & f(x^2) \\
+\vdots & \vdots & \ddots & \vdots \\
+x_1^{HMS} & x_2^{HMS} & \ldots & x_E^{HMS} & f(x^{HMS})\\
+\end{array}\right]
+\end{eqnarray}
+\end{center}
+
+
+\begin{eqnarray}
+\label{eq3}
+E = \sum_{j=0}^{(b-1)}{ \sum_{k=0}^{(r-1)} dmnd_{j,k}}
+\end{eqnarray}
+
+
+\section{Architektúra simulačného modelu}
+Táto sekcia popisuje spôsob implementácie riešenia od inicializácie až po implementačné detaily algoritmu Harmony search. Pre implementáciu bol zvolený jazyk Java. Tento jazyk bol vhodný hlavne kvôli úrovni abstrakcie, a OO návrhu čo uľahčilo implementáciu simulačného modelu. Dátová sada podla INRC 2010 obsahuje informácie vo forme súboru \texttt{xml}. Po spustení programu sú informácie načítané xml parserom, ktorý dáta ukladá do triedy \texttt{Schedule}. Táto trieda zaobaľuje všetky triedy predstavujúce entity reálneho sveta. Hlavné  implementované triedy v programe sú \texttt{Nurse} (informácie o jednej zdravotnej sestre), \texttt{Shit} (typ smeny), \texttt{Contract}(pracovný kontrakt, uchovávajúci všetky požiadavky spomenuté v sekcii \ref{seq3}). Trieda \texttt{CoverRequirements} ukladá požiadavky na typ, počet smien a znalosti zdravotných sestier na každú smenu počas celého plánovacieho obdobia. Po inicializácii je zavolaná algoritmus Harmony search. 
+
+\subsection{Implementácia algoritmu Harmony search}
+Dátové štruktúry algoritmy sú v implementované nasledovne. Trieda \texttt{AllocationVector} predstavuje jedno splniteľné riešenie, trieda obsahuje premennú $fx$ a pole prvkov Allocation. \texttt{Allocation} je trieda, prezentujúca trojicu (n,s,d).
+Implementovaný algoritmus postupuje presne podla pseudokódu\ref{alg1}. Pri inicializácii HM sa náhodne vygeneruje HMS objektov AllocationVector, ktoré sú uložené v poli predstavujúcom HM. Pre každú smenu v každom dni náhone vybraných požadovaný počet sestier. Sestry sú dopredu náhodne vybrané na všetky smeny v jeden deň, aby nedošlo k porušeniu obmedzenia H2. Po inicializácii sa pre každý vektor, spočíta podla rovnice \ref{eq1} penalizačná hodnota \texttt{fx}. Výpočet hodnoty \texttt{fx} tvorí najdôležitejšiu a časovo najnáročnejšiu operáciu celej implementácie. Postupne sú počítané všetky všetky porušenia nepovinných obmedzení. Pre každé obmedzenie je potrebné prejsť rozvrh aspoň jeden krát. Po výpočte sú vektory zoradené zostupne a je vybraný vektor z najhorším ohodnotením.\\
+
+Počas vylepšenie pamäte sa vytvára nový AllocaionVector v troch fázach Memory Consideration, Random Consideration a Picht Adjustment. Na začiatku prebehne Memory Consiration s pravdepodobnosťou HMCR. V tomto kroku sa postupne vyberá náhodná trojica $x = (n,s,d)$ z pamäte HM na pozícií \texttt{i}. Random Consideration prebehne s pravdepodobnosťou $HCMR - 1$. Počas Random Consideration je na smenu $s$ v deň $d$ priradená náhodná sestra, priradením ktorej sa neporuší obmedzenie H2. Vo fázy Pitch Adjusment reprezentovaný konštantou PAR je rozdelený na tri časti $PAR1 = PAR/3$, $PAR2 = 2*PAR/3$, $PAR3 = PAR$.  Na základe každej časti je vykonaná jedna z akcií move(), swapNurse(), swapDays(). Výber akcie je zobrazené na \ref{eq4}. Po zostavení a ohodnotení nového vektoru je vektor porovnaný z najhorším vektorom v HM. Ak je jeho penalizačná hodnota lepšie ako hodnota najhoršieho vektoru je vektor vymenený za vektor v HM. Tento proces sa opakuje počas NI iterácií. 
+
+\begin{center}
+\begin{eqnarray}
+\label{eq4}
+x'_i = \left\{ 
+\begin{array}{l l}
+  move() & \quad \mbox  {$0  \leq U(0,1) < PAR1$}\\
+  swapNurse() & \quad \mbox{$PAR1 \leq U(0,1) < PAR2$}\\
+  swapDays() & \quad \mbox{$PAR2 \leq U(0,1) < PAR3$}\\
+  skip() & \quad \mbox{$PAR3 \leq U(0,1) \leq 1$}\\
+\end{array} \right. 
+\end{eqnarray}
+\end{center}  
+
+
+
+
+
+
+
+
+
+
+
+
+%\section{Komunikácia procesorov}
+%\begin{figure}[ht]
+%	\centering
+%	\includegraphics[width=1.0\textwidth]{komunikace}
+%	\caption{Sekvenčný diagram komunikácie procesorov.}
+%	\label{fig:seqdiag}
+%\end{figure}
+
+\section{Experimenty}
+
+
+\subsection{Zhrnutie experimentov}
+Experimenty prebehli s náhodne vygenerovanými vstupnými maticami. Pred experimentovaním na zvyšujúcom sa počte použitých procesorov, boli vykonané experimenty na maticiach, ktoré používajú rovnaký počet procesorov ale rôznu veľkosť vstupu. Merania boli vykonané pri násobení matice A: $3 \times n$ a matice B: $n \times 3$, kde $n$ je meniaci sa počet vstupov výslednej matice. Vykonané experimenty dokázali závislosť od dĺžky vstupu. Z~tohoto dôvodu boli pri rozdielnom počte procesorov testované matice s rovnakým počtom vstupov. Výsledky týchto experimentov sú znázornené na obrázku \ref{fig:chart_beta}.  \\
+Pri meraní času pri rôznom počte procesorov prebehlo meranie postupne na 1 až 35 procesoroch. Násobené matice mali vždy počet vstupov $n=3$. Pre zvýšenie presnosti merania výpočet prebehol pre každý pár vstupných matíc 20\--krát. Z nameraných hodnôt bol vypočítaný priemer. Výsledný graf je zobrazený na obrázku \ref{fig:chart}.
+
+
+\section{Záver}
+Experimenty dokázali časovú závislosť na rozmeroch matíc a zároveň na počte použitých procesorov pre výpočet násobenej matice. Podla sekcie \ref{seq:rozbor} by mal algoritmus s rastúcim počtom procesorov dosahovať lineárnu časovú zložitosť.
+Experimentálne zistené hodnoty ukazujú približne lineárny priebeh, z čoho možno predpokladať správnosť implementovaného riešenia. Hodnoty, ktoré sa odchyľujú sú pravdepodobne spôsobené meniacou sa záťažou procesoru pri meraní. Reálna zložitosť algoritmu je závislá od veľkosti vstupných matíc a počte procesorov, ktoré je nutné použiť pre výpočet výslednej matice.
+
+\newpage
+\begin{thebibliography}{9}
+	\bibitem{MainArticle}
+ 	Peringer, P. (17.9.2015) Modelování a simulace. Systémy hromadné obsluhy, slide 136
+	 \href{https://www.fit.vutbr.cz/study/courses/IMS/public/prednasky/IMS-4.pdf}{https://www.fit.vutbr.cz/study/courses/IMS/public/prednasky/IMS-4.pdf}
+\end{thebibliography}
+
+
+% ref NursePolicies https://www.researchgate.net/publication/220289509_Nurse_rostering_problems_-_A_bibliographic_survey
+% ref NPProblem https://www.researchgate.net/publication/222117322_Cyclic_and_non-cyclic_scheduling_of_12_h_shift_nurses_by_network_programming
+% ref HS http://journals.sagepub.com/doi/pdf/10.1177/003754970107600201
+\end{document}
