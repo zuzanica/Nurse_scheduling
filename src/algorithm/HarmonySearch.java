@@ -41,6 +41,7 @@ public class HarmonySearch {
 			System.out.println(HM.get(i).getFxWeight());
 		}
 		*/
+		System.out.println(HM.get(HM.size()-1).getFxWeight());
 		
 		int ni = 0;
 		while(ni < NI){
