@@ -25,7 +25,7 @@ public class HarmonySearch {
 	
 	ArrayList<AllocationVector> HM = new ArrayList<AllocationVector>(); 
 	Schedule schedule;
-	AllocationVector solution;
+	AllocationVector solution = null;
 	
 	public HarmonySearch(Schedule _schedule){
 		this.schedule = _schedule;
@@ -41,6 +41,7 @@ public class HarmonySearch {
 			System.out.println(HM.get(i).getFxWeight());
 		}
 		*/
+		/*
 		System.out.println(HM.get(HM.size()-1).getFxWeight());
 		
 		int ni = 0;
@@ -64,14 +65,15 @@ public class HarmonySearch {
 		} // Step5. repeat
 		Collections.sort(HM);
 		System.out.println("Harmony algorithm finishned.");
-		/*
+		
 		for(int i = 0; i < HMS; i++){	
 			System.out.println(HM.get(i).toString());
 		}
-		*/
+		
 		solution = HM.get(0);
 		System.out.println("Best solution is: " + solution.getFxWeight());
 		//System.out.println(solution.toString());
+		 */
 		/*
 		System.out.println("Expected Solution looks like: ");
 		test();

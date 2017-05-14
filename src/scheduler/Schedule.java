@@ -21,8 +21,8 @@ public class Schedule {
 	ArrayList<String> skillsTypes = new ArrayList<String>();
 	ArrayList<Shift> shiftsTypes = new ArrayList<Shift>();
 	ArrayList<Contract> contractsTypes = new ArrayList<Contract>();
-	ArrayList<Pattern> dayPatterns = new ArrayList<Pattern>();
-	ArrayList<Pattern> shiftPatterns  = new ArrayList<Pattern>();
+	ArrayList<UnwantedPattern> dayPatterns = new ArrayList<UnwantedPattern>();
+	ArrayList<UnwantedPattern> shiftPatterns  = new ArrayList<UnwantedPattern>();
 	
 	ArrayList<Nurse> nurses = new ArrayList<Nurse>();
 	// nurse requirements for specific day or shift
@@ -182,19 +182,19 @@ public class Schedule {
         return result;
 	}
 
-	public void addShiftPattern(Pattern p ){
+	public void addShiftPattern(UnwantedPattern p ){
 		shiftPatterns.add(p);
 	}
 	
-	public ArrayList<Pattern> getShiftPattern() {
+	public ArrayList<UnwantedPattern> getShiftPattern() {
 		return shiftPatterns;
 	}
 	
-	public void addDayPattern(Pattern p ){
+	public void addDayPattern(UnwantedPattern p ){
 		dayPatterns.add(p);
 	}
 	
-	public ArrayList<Pattern> getDayPattern() {
+	public ArrayList<UnwantedPattern> getDayPattern() {
 		return dayPatterns;
 	}
 	

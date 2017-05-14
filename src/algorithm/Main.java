@@ -24,12 +24,12 @@ public class Main {
 		Schedule nurseSchedule = XMLParser.parse();
 		System.out.println("Data sucesfully loaded.");
 		nurseSchedule.initialize();
-		/*
+		
 		HarmonySearch HSA = new HarmonySearch(nurseSchedule);
 		
 		outputFile = Common.getfileName(inputFile);
 		Common.storeResult(outputFile, HSA.getSolution());
 		System.out.println("Result saved in "+ outputFile); 
-		*/
+		
 	}
 }

@@ -8,6 +8,8 @@ import algorithm.Allocation;
 import requirements.Cover;
 import scheduler.Nurse;
 import scheduler.Nurse.FreeShift;
+import scheduler.UnwantedPattern;
+import scheduler.UnwantedPattern.Pattern;
 import scheduler.Schedule;
 
 public class AllocationVector implements Comparable<Object>{
@@ -219,13 +221,14 @@ public class AllocationVector implements Comparable<Object>{
 		dayOffShiftOff();
 		
 		// S15 -- unwanted patterns
+		unwantedPatterns();
 		
 		// this patterns don t need to be implemented, they are not tested in datasets
 		// S11 S13 -- day on, shift on
 		// S14 -- alternative skills 
 		
 		for (int i = 0; i < softContraintsVolation.length; i++) {
-			//System.out.println("Total S" + i + " violation " + softContraintsVolation[i]);
+			System.out.println("Total S" + i + " violation " + softContraintsVolation[i]);
 			fx +=  softContraintsVolation[i];
 		}
 		
@@ -498,6 +501,59 @@ public class AllocationVector implements Comparable<Object>{
 			//System.out.println("Nurse " +j+ " S9 violation " +  workDayAfterNightTotal[j]);
 		}
 	}
+	
+	private void unwantedPatterns(){
+		int[] uwPatternCounter = new int[schedule.nursesCount];
+		// vector of nurses with total working days after night shift 
+		int[] uwPatternVolation = new int[schedule.nursesCount];
+		// vector of nurses with total working days after night shift 
+		int[] uwPatternTotalVolation = new int[schedule.nursesCount];
+		
+		//for day unwanted patterns
+		for (int i = 0; i < schedule.getShiftPattern().size(); i++) {
+			
+			UnwantedPattern shiftPattern = schedule.getDayPattern().get(0);
+			int patternLen = shiftPattern.getPatterns().size();
+			Arrays.fill(uwPatternCounter,new Integer(0));
+			Arrays.fill(uwPatternVolation,new Integer(0));
+			Arrays.fill(uwPatternVolation,new Integer(0));
+			Pattern pattern;
+			int day = 0;
+			for (int j = 0; j < x.size(); j++) {
+				Allocation a = x.get(j);
+				if(a.d != day ){
+					day = a.d;
+					for(int k=0 ; k < uwPatternCounter.length; k++ ){
+						if(uwPatternVolation[k] > 0){
+							uwPatternCounter[k] = 0;
+							uwPatternVolation[k] = 0;
+							uwPatternTotalVolation[k] +=1;
+						}
+						uwPatternCounter[k] = Math.max(uwPatternCounter[k]-1, 0);
+					}
+				}
+				// check unwanted pattern volation
+				if((int) uwPatternCounter[a.n] > 0){
+					// increase S15 shift nurse violation
+					pattern = shiftPattern.getPatterns().get(uwPatternCounter[a.n]);
+					if(a.s.equals(pattern.getShiftType())){
+						uwPatternVolation[a.n]++;
+					}
+				}
+				// if nurse a.n has assigned unwanted shift
+				pattern = shiftPattern.getPatterns().get(uwPatternCounter[0]);
+				if(a.s.equals(pattern.getShiftType())){
+					// set signal that nurse need 2 free days
+					uwPatternCounter[a.n] = patternLen; 
+				}
+			}	
+			for (int j = 0; j < uwPatternTotalVolation.length; j++) {
+				softContraintsVolation[14] += uwPatternTotalVolation[j]; 
+				System.out.println("Nurse " +j+ " S15 violation " +  uwPatternTotalVolation[j]);
+			}
+		}
+	}
+
 
 	private void dayOffShiftOff(){
 		int[] daysOffVolations = new int[schedule.nursesCount];
