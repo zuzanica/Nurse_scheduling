@@ -61,7 +61,7 @@ public class AllocationVector implements Comparable<Object>{
 			
 			out += x.get(j).toString() + " , ";
 			if(j > 0 && j % 5 == 4){
-				;//out += "\n";
+				out += "\n";
 			}
 		}
 		
@@ -142,10 +142,7 @@ public class AllocationVector implements Comparable<Object>{
 	 * @return true/false
 	 */
 	public boolean checkFeasibility(){
-		
-		// sort
 		Collections.sort(x);
-		//System.out.println("Rooster: \n" + x.toString());
 		ArrayList<Integer> assignedNurses = new ArrayList<>();
 		
 		int day = 0;
@@ -156,9 +153,7 @@ public class AllocationVector implements Comparable<Object>{
 				assignedNurses.clear();
 				day = a.d;
 			}
-			//System.out.println( assignedNurses.toString());
 			//check if nurse is already assigned at some day.  
-			
 			if(assignedNurses.contains(a.n)){
 				System.out.println("Incorrcet rooster, nurse " + a.n + " in already assigned at day " + day);
 				return false;
@@ -166,9 +161,6 @@ public class AllocationVector implements Comparable<Object>{
 				assignedNurses.add(a.n);
 			}
 		}
-		
-		//System.out.println("IS FEASIBLE.");
-		//System.out.println("===============================================");
 		return true;
 	}
 	
@@ -194,42 +186,29 @@ public class AllocationVector implements Comparable<Object>{
 	}
 	
 	/**
-	 * Fot all Soft contraint coutn Gs(x). From Gs(x) count total evaluate function fx.
+	 * For all Soft constraint count Gs(x). From Gs(x) count total evaluate function fx.
 	 * @param x : feasible rooster
 	 * @return fx value
 	 */
 	protected int evaluateRooster(){
 		// check S1,S2 constraint	
 		getMaxMinAssignViolations();
-		
 		// check S3,S4 constraint
 		getMaxMinConseqDayViolations();
-		
 		// check S5,S6 constraint
 		getMaxMinFreeDayVolations();
-		
 		// check S7
 		completeWeekends();
-		
 		// check S8
 		identicalWeekends();
-		
 		// check S9
 		twoFreeDaysAfterNight();
-		
 		// check S10, S12
 		dayOffShiftOff();
-		
-		/*
-		for (int i = 0; i < schedule.getShiftPattern().size(); i++) {
-			System.out.println(schedule.getShiftPattern().get(i).toString());
-		}
-		*/
-		
-		// S15 -- unwanted patterns
+		// S15
 		unwantedPatterns();
 		
-		// this patterns don t need to be implemented, they are not tested in datasets
+		// this patterns don t need to be implemented, they are not tested in data sets
 		// S11 S13 -- day on, shift on
 		// S14 -- alternative skills 
 		
@@ -282,7 +261,6 @@ public class AllocationVector implements Comparable<Object>{
 		int[] minConsWorkTotal = new int[schedule.nursesCount];
 		Arrays.fill(minConsWorkTotal,new Integer(0));
 		
-		//TODO sort x by day value
 		int day = 0;
 		for (int i = 0; i < x.size(); i++) {
 			Allocation a = x.get(i);
@@ -338,7 +316,6 @@ public class AllocationVector implements Comparable<Object>{
 		ArrayList<Integer> freeNurses = new ArrayList<>();
 		freeNurses = initArray(freeNurses, schedule.nursesCount);
 		
-		// TODO sort x by day value
 		int day = 0;
 		// loop feasible rooster represented like Allocation vector x
 		for (int i = 0; i < x.size(); i++) {
@@ -601,6 +578,12 @@ public class AllocationVector implements Comparable<Object>{
 		}
 	}
 	
+	/**
+	 * Initialize array
+	 * @param list
+	 * @param size
+	 * @return
+	 */
 	private ArrayList<Integer> initArray(ArrayList<Integer> list, int size){
 		
 		list.clear();
@@ -610,8 +593,13 @@ public class AllocationVector implements Comparable<Object>{
 		return list;
 	}
 	
+	/**
+	 * 
+	 * @param count of nurses
+	 * @param max number of nurses
+	 * @return array with nurses id
+	 */
 	private int[] randNurses(int count, int max ){
-		
 		ArrayList<Integer> fullList = new ArrayList<>();
 		for (int i = 0; i < max; ++i) {
 			fullList.add(i);
@@ -620,20 +608,27 @@ public class AllocationVector implements Comparable<Object>{
 		int[] newfiled = new int[count]; 
 		for (int i = 0; i < count; ++i) {
 			int r = (int) (Math.random() * fullList.size());
-			//System.out.println("rabd index " + r+" ");
 			newfiled[i] = fullList.remove(r);
-			//System.out.print(newfiled[i]+" ");
 		}
-		//System.out.println();
 		return newfiled;
 	}
 	
+	/**
+	 * Select random nurse from list.
+	 * @param avaliableNurses : list of available 
+	 * @return nurse id
+	 */
 	public int randNurse(ArrayList<Integer> avaliableNurses){
-		int n, index;
+		int index;
 		index = schedule.getRandNum(0, avaliableNurses.size()-1);
 		return avaliableNurses.get(index);
 	}
 	
+	/**
+	 * 
+	 * @param day: selected day
+	 * @return : list of nurses available for day. 
+	 */
 	ArrayList<Integer> getAvaliableNurseList(int day){
 		ArrayList<Integer> avaliableNurses = new ArrayList<>();
 		avaliableNurses = initArray(avaliableNurses, schedule.nursesCount);
@@ -645,30 +640,6 @@ public class AllocationVector implements Comparable<Object>{
 				avaliableNurses.remove(Integer.valueOf(a.n));
 			}
 		}
-		//System.out.println("Avaliable nurses at day "+day+ " are "+ avaliableNurses.toString());
 		return avaliableNurses;
 	}
-	 
-		double setAllocationWeight(Allocation a,int validNurses){
-			double weight=0;
-			// Night shift is alwais type N, and has weight 100
-			if(a.s.equals("N")){
-				weight += 100; 
-				//System.out.println("Sum " + weight);
-			}
-			// Weekend shift is alwais 5th or 6th day (week is 0..6) 
-			if((a.d % 7 == 5) || (a.d % 7 == 6)){
-				weight += 50;
-				//System.out.println("Sum " + weight);
-			}
-			// (Number of valid Nurses / Total nurses) * 70 
-			double s = (double)validNurses /(schedule.nursesCount);
-			weight += s * 70;
-			//System.out.println("Sum "+ weight);
-			// (schedule end data - shift date) * 20
-			weight += (schedule.period - a.d) * 20; 
-			//System.out.println("Sum " + weight);
-			return weight;
-		
-		}	 
 }

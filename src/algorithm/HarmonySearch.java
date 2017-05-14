@@ -14,11 +14,11 @@ import scheduler.Shift;
 
 public class HarmonySearch {
 	// constatnts set accortidn the study 
-	static final int HMS = 10;
+	static final int HMS = 100;
 	static final int LOOPLIMIT = HMS*2;
-	static final double HMCR = 0.90;
+	static final double HMCR = 0.99;
 	static final int NI = 100000;
-	static final double PAR = 0.1;
+	static final double PAR = 0.01;
 	static final double PAR1 = PAR/3;
 	static final double PAR2 = 2*PAR/3;
 	static final double PAR3 = PAR;
@@ -37,11 +37,10 @@ public class HarmonySearch {
 		inirializeHM();
 		Collections.sort(HM);
 		
-		/*
 		for(int i = 0; i < HMS; i++){	
 			System.out.println(HM.get(i).toString());
 		}
-		*/
+		
 		
 		System.out.println(HM.get(HM.size()-1).getFxWeight());
 		
@@ -85,10 +84,12 @@ public class HarmonySearch {
 	public int getSolution(){
 		return solution.getFxWeight();
 	}
-		
+	
+	/**
+	 * Initialize HM with Allcations vectors, witch represents feasible roosters.
+	 */
 	public void inirializeHM(){
 		//get vector of feasible solutions (AllocationVector)
-		
 		for(int i = 0; i < HMS; i++){	
 			// generate feasible rooster and evaluate this rooster
 			AllocationVector xi = new AllocationVector(schedule);
@@ -96,18 +97,14 @@ public class HarmonySearch {
 			xi.evaluateRooster();
 			HM.add(xi);
 		}
-		/*
-		//sort vector
-		Collections.sort(HM);
-		for(int i = 0; i < HMS; i++){	
-			System.out.println(HM.get(i).toString());
-		}
-		*/
-		
 		System.out.println("HM initialization finished.");
 		return;
 	}
 	
+	/**
+	 * Step3. finds new rooster
+	 * @return
+	 */
 	public AllocationVector improviseNewHarmony(){
 		// x'
 		AllocationVector newRooster = new AllocationVector(schedule);
