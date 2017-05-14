@@ -191,7 +191,7 @@ Implementovaný algoritmus postupuje presne podla pseudokódu\ref{alg1}. Pri ini
 \\
 Počas vylepšenie pamäte sa vytvára nový AllocaionVector v troch fázach Memory Consideration, Random Consideration a Picht Adjustment. Na začiatku prebehne Memory Consiration s pravdepodobnosťou HMCR. V tomto kroku sa postupne vyberá náhodná trojica $x = (n,s,d)$ z pamäte HM na pozícií \texttt{i}. Random Consideration prebehne s pravdepodobnosťou $HCMR - 1$. Počas Random Consideration je na smenu $s$ v deň $d$ priradená náhodná sestra, priradením ktorej sa neporuší obmedzenie H2. Vo fázy Pitch Adjusment reprezentovaný konštantou PAR je rozdelený na tri časti $PAR1 = PAR/3$, $PAR2 = 2*PAR/3$, $PAR3 = PAR$.  Na základe každej časti je vykonaná jedna z akcií move(), swapNurse(), swapDays(). Výber akcie je zobrazené na \ref{eq4}. Po zostavení a ohodnotení nového vektoru je vektor porovnaný z najhorším vektorom v HM. Ak je jeho penalizačná hodnota lepšie ako hodnota najhoršieho vektoru je vektor vymenený za vektor v HM. Tento proces sa opakuje počas NI iterácií. Po skončení algoritmu sa určí najlepšií vektor, predstavujúci rozvrh sestier na celé plánované obdobie. 
 \begin{center}
-\begin{eqnarray}[ht]
+\begin{eqnarray}
 \label{eq4}
 x'_i = \left\{ 
 \begin{array}{l l}
@@ -205,7 +205,7 @@ x'_i = \left\{
 
 
 \section{Experimenty}
-S využitým popísaného a implementovaného modelu boli prevedené nasledujúce experimenty. Experimenty boli prevedené nad rovnakými dátovými sadami ako v publikáciách \cite{MainArticle} a \cite{MathArticle}. Dátové sady boli zverejnené podla INRC 2010. Cieľom experimentov bolo overiť správnosť implementovaného riešenie (nájdenie splniteľného riešenia) a porovnanie výsledkov zo vzorovou publikáciu. Pre vykonanie experimentov bol vytvorený testovací skript, ktorý spustil každý experiment 10-krát. Výsledky experimentov boli uložené do súborov a následne vyhodnotené. 
+S využitým popísaného a implementovaného modelu boli prevedené nasledujúce experimenty. Experimenty boli prevedené nad rovnakými dátovými sadami ako v publikácii \cite{MainArticle}. Dátová sada boli zverejnené podla INRC 2010. Cieľom experimentov bolo overiť správnosť implementovaného riešenie (nájdenie splniteľného riešenia) a porovnanie výsledkov zo vzorovou publikáciu. Pre vykonanie experimentov bol vytvorený testovací skript, ktorý spustil každý experiment 5-krát. Výsledky experimentov boli uložené do súborov a následne vyhodnotené. 
 
 \subsection{Základné experimenty}
 Základné experimenty prebehli na troch druhoch dátových sád \texttt{sprint\_early}, \texttt{sprint\_late} a \texttt{sprint\_hidden}. Parametre algoritmu Harmony search boli nastavené nasledovne: veľkosť harmonickej pamäte $HMS = 100$, pravdepodobnosť  $HMCR = 0.99$ a $PAR = 0.01$. Počet iterácií bol nastavený na $NI = 150000$. V tabuľkách \ref{tab1}, \ref{tab2}, \ref{tab3} sú výsledky namerané vo všetkých dátových sadách. Prvý stĺpec zobrazuje najlepšie nájdené výsledky implementovaným algoritmom, druhý stĺpec najhorší výsledok a tretí stĺpec priemernú hodnotu. Štvrtý a piaty stĺpec slúžia pre porovnanie s výsledkami publikácie a najlepšími výsledkami sútaže PATAT 2010 \cite{PATAT}. 
@@ -269,11 +269,12 @@ sprint\_hidden10 &                  &                   &         & 306         
 \end{tabular}
 \end{table}
 \newpage
-\subsection{Ďalšie experimenty}
-Ďalšie experimenty boli vykonané podla publikácie \cite{MathArticle} na dátových sadách \texttt{medium\_early}, \texttt{medium\_late} a \texttt{medium\_hidden}. Parametre algoritmu boli nastavené $HMS = 10$, $HMCR = 0.90$, $PAR = 0.1$. Počet iterácií bol nastavený na $NI = 100000$. Výsledky v tabuľke sú zoradené rovnako v predošlých prípadoch. 
+
+%\subsection{Ďalšie experimenty}
+%Ďalšie experimenty boli vykonané podla publikácie \cite{MathArticle} na dátových sadách \texttt{medium\_early}, \texttt{medium\_late} a \texttt{medium\_hidden}. Parametre algoritmu boli %nastavené $HMS = 10$, $HMCR = 0.90$, $PAR = 0.1$. Počet iterácií bol nastavený na $NI = 100000$. Výsledky v tabuľke sú zoradené rovnako v predošlých prípadoch. 
 
 \section{Záver}
-Vykonané experimenty ukázali, že implementovaný simulační dokáže nájsť riešenie Nurse rostering problému. V porovnaní s výsledkami vedeckých publikácií a sútaže sa ukázali horšie výsledky. Napriek týmto výsledkom implementovaný algoritmus dokázal niekoľkonásobne znížiť pôvodnú penalizačnú hodnotu náhodne vygenerovaného rozvrhu. Riešenia nájdené implementovaným algoritmom sú silno závislé od náhodných hodnôt a každého implementačného detailu. Algoritmus Harmony search ako vhodný pre riešenie Nurse scheduling problému. Prípadné modifikácie algoritmu alebo použitie hybridných metód by mohli prispieť k zlepšeniu výsledkov.   
+Vykonané experimenty ukázali, že implementovaný simulační dokáže nájsť riešenie Nurse rostering problému. V porovnaní s výsledkami vedeckých publikácií a sútaže sa ukázali horšie výsledky. Napriek týmto výsledkom implementovaný algoritmus dokázal niekoľkonásobne znížiť pôvodnú penalizačnú hodnotu náhodne vygenerovaného rozvrhu. Riešenia nájdené implementovaným algoritmom sú silno závislé od náhodných hodnôt a každého implementačného detailu. Algoritmus Harmony search sa ukázal ako vhodný pre riešenie Nurse rostering problému. Cieľom dalšieho rozvoja by bola prípadná modifikácia algoritmu alebo použitie hybridných metód. Tieto metódy by mohli prispieť k vylepšeniu výsledkov.   
 
 \newpage
 \begin{thebibliography}{9}
@@ -282,16 +283,15 @@ Vykonané experimenty ukázali, že implementovaný simulační dokáže nájsť
 	 \href{https://www.fit.vutbr.cz/study/courses/SNT/public/Prednasky/SNT.pdf}{$<$https://www.fit.vutbr.cz/study/courses/SNT/public/Prednasky/SNT.pdf$>$}
 	
 	\bibitem{MainArticle}
- 	Peringer, P. (20.9.2015) Modelování a simulace. Systémy hromadné obsluhy, slide 136
-	 \href{https://www.fit.vutbr.cz/study/courses/IMS/public/prednasky/IMS-4.pdf}{https://www.fit.vutbr.cz/study/courses/IMS/public/prednasky/IMS-4.pdf}
+ 	Awadallah, M.A.; Khader, A.T.; Al-Betar, M.A.; Bolaji, A.L.; Nurse Scheduling Using Harmony Search. \emph{Bio-Inspired Computing: Theories and Applications (BIC-TA)}, 2011 Sixth International Conference on.
+	%\href{https://www.fit.vutbr.cz/study/courses/IMS/public/prednasky/IMS-4.pdf}{https://www.fit.vutbr.cz/study/courses/IMS/public/prednasky/IMS-4.pdf}
 
 	\bibitem{MathArticle}
- 	Peringer, P. (20.9.2015) Modelování a simulace. Systémy hromadné obsluhy, slide 136
-	 \href{https://www.fit.vutbr.cz/study/courses/IMS/public/prednasky/IMS-4.pdf}{https://www.fit.vutbr.cz/study/courses/IMS/public/prednasky/IMS-4.pdf}
+ 	Awadallah, M.A.; Khader, A.T.;  Al-Betar, M.A.; Bolaji, A.L.; Global best Harmony Search with a new pitch adjustment designed for Nurse Rostering. \emph{Journal of King Saud University - Computer and Information Sciences}, Volume 25, Issue 2, July 2013, Pages 145–162.
 	 
  	\bibitem{PATAT}
  	PATAT 2010, Nurse Rostering Problem, online.
-	 \href{https://www.kuleuven-kulak.be/nrpcompetition}{https://www.kuleuven-kulak.be/nrpcompetition}
+	 \href{https://www.kuleuven-kulak.be/nrpcompetition}{$<$https://www.kuleuven-kulak.be/nrpcompetition$>$}
 
 	\bibitem{NursePolicies}
  	Cheang, B.; Lin, A.; Li, H.; Rodrigues, B. Nurse rostering problems - A bibliographic survey. \emph{ European Journal of Operational Research} 151(3):447-460, December 2003.  
@@ -304,22 +304,19 @@ Vykonané experimenty ukázali, že implementovaný simulační dokáže nájsť
 	\bibitem{HarmonySearch}
  	Geem, Z.W; Kim, J.H.; Loganathan, G.V. A New Heuristic Optimization Algorithm: Harmony Search.
 	 \href{http://journals.sagepub.com/doi/abs/10.1177/003754970107600201}{$<$http://journals.sagepub.com/doi/abs/10.1177/003754970107600201$>$}
-	 
- 	\bibitem{Gen}
- 	Peringer, P. (20.9.2015) Modelování a simulace. Systémy hromadné obsluhy, slide 136
-	 \href{https://www.fit.vutbr.cz/study/courses/IMS/public/prednasky/IMS-4.pdf}{https://www.fit.vutbr.cz/study/courses/IMS/public/prednasky/IMS-4.pdf}
-
+ 	
 	\bibitem{Math}
- 	Peringer, P. (20.9.2015) Modelování a simulace. Systémy hromadné obsluhy, slide 136
-	 \href{https://www.fit.vutbr.cz/study/courses/IMS/public/prednasky/IMS-4.pdf}{https://www.fit.vutbr.cz/study/courses/IMS/public/prednasky/IMS-4.pdf}	 
+ 	 Mason, A.; Smith, M.; A nested column generator for solving rostering problems with integer programming. \emph{International conference on optimisation: techniques and applications}. Citeseer, 1998, pp. 827–834.
 
  	\bibitem{Apr}
- 	Peringer, P. (20.9.2015) Modelování a simulace. Systémy hromadné obsluhy, slide 136
-	 \href{https://www.fit.vutbr.cz/study/courses/IMS/public/prednasky/IMS-4.pdf}{https://www.fit.vutbr.cz/study/courses/IMS/public/prednasky/IMS-4.pdf}
+ 	Beddoe, G.; Petrovic, S.; Li, J.; A hybrid metaheuristic case-based reasoning system for nurse rostering.  \emph{Journal of Scheduling}. vol. 12, no. 2, pp. 99–119, 2009.
 
  	\bibitem{Pravidla}
 	Haspeslagh, S.; Causmaecker, P.; Stølevik, M.; Schaerf, A. First International Nurse Rostering Competition.
 	 \href{https://www.kuleuven-kulak.be/~u0041139/nrpcompetition/nrpcompetition\_description.pdf}{$<$https://www.kuleuven-kulak.be/~u0041139/nrpcompetition/nrpcompetition\_description.pdf$>$}
+	 
+  	\bibitem{Gen}
+	Aickelin, U.; Dowsland, K.; An indirect genetic algorithm for a nurse-scheduling problem. \emph{Computers \& Operations Research}. vol. 31, no. 5, pp. 761–778, 2004.
 
 	 
 \end{thebibliography}
