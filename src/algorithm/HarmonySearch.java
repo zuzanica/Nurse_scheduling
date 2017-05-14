@@ -14,11 +14,11 @@ import scheduler.Shift;
 
 public class HarmonySearch {
 	// constatnts set accortidn the study 
-	static final int HMS = 1;
+	static final int HMS = 10;
 	static final int LOOPLIMIT = HMS*2;
-	static final double HMCR = 0.99;
-	static final int NI = 150000;
-	static final double PAR = 0.01;
+	static final double HMCR = 0.90;
+	static final int NI = 100000;
+	static final double PAR = 0.1;
 	static final double PAR1 = PAR/3;
 	static final double PAR2 = 2*PAR/3;
 	static final double PAR3 = PAR;
@@ -37,16 +37,18 @@ public class HarmonySearch {
 		inirializeHM();
 		Collections.sort(HM);
 		
+		/*
 		for(int i = 0; i < HMS; i++){	
 			System.out.println(HM.get(i).toString());
 		}
+		*/
 		
-		/*
 		System.out.println(HM.get(HM.size()-1).getFxWeight());
 		
 		int ni = 0;
 		while(ni < NI){
-			if(ni%10000 == 0) System.out.println("Round:" + ni);
+			if(ni%10000 == 0)
+				System.out.println("Round:" + ni);
 			
 			ni++;
 			// Step2-part2
@@ -73,7 +75,7 @@ public class HarmonySearch {
 		solution = HM.get(0);
 		System.out.println("Best solution is: " + solution.getFxWeight());
 		//System.out.println(solution.toString());
-		 */
+		
 		/*
 		System.out.println("Expected Solution looks like: ");
 		test();

@@ -61,7 +61,7 @@ public class AllocationVector implements Comparable<Object>{
 			
 			out += x.get(j).toString() + " , ";
 			if(j > 0 && j % 5 == 4){
-				out += "\n";
+				;//out += "\n";
 			}
 		}
 		
@@ -220,9 +220,11 @@ public class AllocationVector implements Comparable<Object>{
 		// check S10, S12
 		dayOffShiftOff();
 		
+		/*
 		for (int i = 0; i < schedule.getShiftPattern().size(); i++) {
 			System.out.println(schedule.getShiftPattern().get(i).toString());
 		}
+		*/
 		
 		// S15 -- unwanted patterns
 		unwantedPatterns();
@@ -232,7 +234,7 @@ public class AllocationVector implements Comparable<Object>{
 		// S14 -- alternative skills 
 		
 		for (int i = 0; i < softContraintsVolation.length; i++) {
-			System.out.println("Total S" + i + " violation " + softContraintsVolation[i]);
+			//System.out.println("Total S" + i + " violation " + softContraintsVolation[i]);
 			fx +=  softContraintsVolation[i];
 		}
 		
@@ -520,8 +522,7 @@ public class AllocationVector implements Comparable<Object>{
 			int patternLen = shiftPattern.getPatterns().size();
 			Arrays.fill(uwPatternCounter,new Integer(0));
 			Arrays.fill(uwPatternVolation,new Integer(0));
-			System.out.println("P len " +  patternLen);
-			
+			//System.out.println("P len " +  patternLen);
 			
 			Pattern pattern;
 			int day = 0;
@@ -548,7 +549,7 @@ public class AllocationVector implements Comparable<Object>{
 				}
 				// if nurse a.n has assigned unwanted shift
 				pattern = shiftPattern.getPatterns().get(0);
-				System.out.println("P " +  pattern.getShiftType());
+				//System.out.println("P " +  pattern.getShiftType());
 				if(a.s.equals(pattern.getShiftType())){
 					// set signal that nurse need 2 free days
 					uwPatternCounter[a.n] = patternLen; 
@@ -556,7 +557,7 @@ public class AllocationVector implements Comparable<Object>{
 			}	
 			for (int j = 0; j < uwPatternTotalVolation.length; j++) {
 				softContraintsVolation[14] += uwPatternTotalVolation[j]; 
-				System.out.println("Nurse " +j+ " S15 violation " +  uwPatternTotalVolation[j]);
+				//System.out.println("Nurse " +j+ " S15 violation " +  uwPatternTotalVolation[j]);
 			}
 		}
 	}
