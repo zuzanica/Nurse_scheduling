@@ -14,7 +14,7 @@ import scheduler.Shift;
 
 public class HarmonySearch {
 	// constatnts set accortidn the study 
-	static final int HMS = 100;
+	static final int HMS = 1;
 	static final int LOOPLIMIT = HMS*2;
 	static final double HMCR = 0.99;
 	static final int NI = 150000;
@@ -36,11 +36,11 @@ public class HarmonySearch {
 		
 		inirializeHM();
 		Collections.sort(HM);
-		/*
+		
 		for(int i = 0; i < HMS; i++){	
-			System.out.println(HM.get(i).getFxWeight());
+			System.out.println(HM.get(i).toString());
 		}
-		*/
+		
 		/*
 		System.out.println(HM.get(HM.size()-1).getFxWeight());
 		

@@ -18,9 +18,9 @@ import requirements.Cover;
 import requirements.CoverRequirements;
 import scheduler.Contract;
 import scheduler.Nurse;
-import scheduler.Pattern;
 import scheduler.Schedule;
 import scheduler.Shift;
+import scheduler.UnwantedPattern;
 
 public final class XMLParser {
 	File fXmlFile; 
@@ -138,23 +138,31 @@ public final class XMLParser {
 				
 				//parse node with pattern entry
 				NodeList pEntries = (NodeList) eElement.getElementsByTagName("PatternEntries").item(0);
-	
+				UnwantedPattern uwPattern = new UnwantedPattern();
+				Boolean shiftPattern = true;
 				for (int i = 0; i < pEntries.getLength(); i++) {
 					Node pEntry = (Node) pEntries.item(i);	
 					if (pEntry.getNodeType() == Node.ELEMENT_NODE) {
 						Element elem = (Element) pEntry;
 						String st = elem.getElementsByTagName("ShiftType").item(0).getTextContent();
 						String day = elem.getElementsByTagName("Day").item(0).getTextContent();
+						uwPattern.addPattern(uwPattern.new Pattern(st, day));
 						if(day.equals("Any")){
 							//System.out.println("add shift pattern!");
-							schedule.addShiftPattern(new Pattern(st, day));
+							shiftPattern = true;
 						}else if(st.equals("None") || st.equals("Any")){
+							shiftPattern = false;
 							//System.out.println("add day pattern!");
-							schedule.addDayPattern(new Pattern(st, day));
 						}else {
-							//System.err.println("Unknown patterns are dropped!");
+							System.err.println("Unknown patterns are dropped!");
 						}
+						
 					}
+				}
+				if(shiftPattern){
+					schedule.addShiftPattern(uwPattern);
+				}else {
+					schedule.addDayPattern(uwPattern);
 				}
 			}	
 		}

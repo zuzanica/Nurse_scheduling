@@ -61,7 +61,7 @@ public class AllocationVector implements Comparable<Object>{
 			
 			out += x.get(j).toString() + " , ";
 			if(j > 0 && j % 5 == 4){
-				//;out += "\n";
+				out += "\n";
 			}
 		}
 		
@@ -219,6 +219,10 @@ public class AllocationVector implements Comparable<Object>{
 		
 		// check S10, S12
 		dayOffShiftOff();
+		
+		for (int i = 0; i < schedule.getShiftPattern().size(); i++) {
+			System.out.println(schedule.getShiftPattern().get(i).toString());
+		}
 		
 		// S15 -- unwanted patterns
 		unwantedPatterns();
@@ -508,15 +512,17 @@ public class AllocationVector implements Comparable<Object>{
 		int[] uwPatternVolation = new int[schedule.nursesCount];
 		// vector of nurses with total working days after night shift 
 		int[] uwPatternTotalVolation = new int[schedule.nursesCount];
-		
+		Arrays.fill(uwPatternTotalVolation,new Integer(0));
 		//for day unwanted patterns
 		for (int i = 0; i < schedule.getShiftPattern().size(); i++) {
 			
-			UnwantedPattern shiftPattern = schedule.getDayPattern().get(0);
+			UnwantedPattern shiftPattern = schedule.getShiftPattern().get(0);
 			int patternLen = shiftPattern.getPatterns().size();
 			Arrays.fill(uwPatternCounter,new Integer(0));
 			Arrays.fill(uwPatternVolation,new Integer(0));
-			Arrays.fill(uwPatternVolation,new Integer(0));
+			System.out.println("P len " +  patternLen);
+			
+			
 			Pattern pattern;
 			int day = 0;
 			for (int j = 0; j < x.size(); j++) {
@@ -541,7 +547,8 @@ public class AllocationVector implements Comparable<Object>{
 					}
 				}
 				// if nurse a.n has assigned unwanted shift
-				pattern = shiftPattern.getPatterns().get(uwPatternCounter[0]);
+				pattern = shiftPattern.getPatterns().get(0);
+				System.out.println("P " +  pattern.getShiftType());
 				if(a.s.equals(pattern.getShiftType())){
 					// set signal that nurse need 2 free days
 					uwPatternCounter[a.n] = patternLen; 
