@@ -18,9 +18,9 @@ import requirements.Cover;
 import requirements.CoverRequirements;
 import scheduler.Contract;
 import scheduler.Nurse;
+import scheduler.Pattern;
 import scheduler.Schedule;
 import scheduler.Shift;
-import scheduler.UnwantedPattern;
 
 public final class XMLParser {
 	File fXmlFile; 
@@ -135,7 +135,6 @@ public final class XMLParser {
 			if (pattern.getNodeType() == Node.ELEMENT_NODE) {
 				Element eElement = (Element) pattern;
 				int id = Integer.parseInt(eElement.getAttribute("ID"));
-				UnwantedPattern unwantedP = new UnwantedPattern(id);
 				
 				//parse node with pattern entry
 				NodeList pEntries = (NodeList) eElement.getElementsByTagName("PatternEntries").item(0);
@@ -145,12 +144,18 @@ public final class XMLParser {
 					if (pEntry.getNodeType() == Node.ELEMENT_NODE) {
 						Element elem = (Element) pEntry;
 						String st = elem.getElementsByTagName("ShiftType").item(0).getTextContent();
-						String day = elem.getElementsByTagName("Day").item(0).getTextContent(); 
-						unwantedP.addPattern(unwantedP.new Pattern(st, day));
+						String day = elem.getElementsByTagName("Day").item(0).getTextContent();
+						if(day.equals("Any")){
+							//System.out.println("add shift pattern!");
+							schedule.addShiftPattern(new Pattern(st, day));
+						}else if(st.equals("None") || st.equals("Any")){
+							//System.out.println("add day pattern!");
+							schedule.addDayPattern(new Pattern(st, day));
+						}else {
+							//System.err.println("Unknown patterns are dropped!");
+						}
 					}
 				}
-				//System.out.println(s.toString());
-				schedule.addUnwantedPattern(unwantedP);	
 			}	
 		}
 	}
@@ -166,14 +171,15 @@ public final class XMLParser {
 				//TODO child nodeList unwanted patterns
 				ArrayList<Integer> UP = new ArrayList<Integer>();
 				NodeList unwantedPatterns = (NodeList) eElement.getElementsByTagName("Pattern").item(0);
-				for (int i = 0; i < unwantedPatterns.getLength(); i++) {
-					Node pattern = (Node) unwantedPatterns.item(i);			
-					if (pattern.getNodeType() == Node.ELEMENT_NODE) {
-						//System.out.println(i + ": UP "+ skill.getTextContent());
-						UP.add(Integer.parseInt(pattern.getTextContent()));
+				if(unwantedPatterns != null){
+					for (int i = 0; i < unwantedPatterns.getLength(); i++) {
+						Node pattern = (Node) unwantedPatterns.item(i);			
+						if (pattern.getNodeType() == Node.ELEMENT_NODE) {
+							//System.out.println(i + ": UP "+ skill.getTextContent());
+							UP.add(Integer.parseInt(pattern.getTextContent()));
+						}
 					}
 				}
-				
 				String id = eElement.getAttribute("ID");
 				String desc = eElement.getElementsByTagName("Description").item(0).getTextContent();
 				String assigmentPD = eElement.getElementsByTagName("SingleAssignmentPerDay").item(0).getTextContent();

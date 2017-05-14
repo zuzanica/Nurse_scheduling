@@ -20,13 +20,15 @@ public class Schedule {
 	
 	ArrayList<String> skillsTypes = new ArrayList<String>();
 	ArrayList<Shift> shiftsTypes = new ArrayList<Shift>();
-	ArrayList<UnwantedPattern> unwantedPatterns = new ArrayList<UnwantedPattern>();
 	ArrayList<Contract> contractsTypes = new ArrayList<Contract>();
+	ArrayList<Pattern> dayPatterns = new ArrayList<Pattern>();
+	ArrayList<Pattern> shiftPatterns  = new ArrayList<Pattern>();
 	
 	ArrayList<Nurse> nurses = new ArrayList<Nurse>();
 	// nurse requirements for specific day or shift
 	ArrayList<CoverRequirements> weeklyCoverRequirements = new ArrayList<CoverRequirements>() ;
-	
+
+
 	// schedule variables	
 	public int nursesCount = 0;
 	// number of differenet shifts
@@ -64,7 +66,6 @@ public class Schedule {
 			int days = (int) Math.abs((startDate.getTime()-endDate.getTime())/86400000);
 			return days+1;
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -86,11 +87,7 @@ public class Schedule {
 	public void addContract(Contract c){
 		contractsTypes.add(c);
 	}
-	
-	public void addUnwantedPattern(UnwantedPattern up){
-		unwantedPatterns.add(up);
-	}
-	
+		
 	public void addCoverRequirements(ArrayList<CoverRequirements> _week){
 		weeklyCoverRequirements = _week;
 	}
@@ -183,6 +180,22 @@ public class Schedule {
 	public double getRandNum(){
         double result = rand.nextDouble();
         return result;
+	}
+
+	public void addShiftPattern(Pattern p ){
+		shiftPatterns.add(p);
+	}
+	
+	public ArrayList<Pattern> getShiftPattern() {
+		return shiftPatterns;
+	}
+	
+	public void addDayPattern(Pattern p ){
+		dayPatterns.add(p);
+	}
+	
+	public ArrayList<Pattern> getDayPattern() {
+		return dayPatterns;
 	}
 	
 }
