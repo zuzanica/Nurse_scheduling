@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 /**
  * Represents all requests for all period.
- * @author Studená Zuzana
+ * @author Studena Zuzana
  *
  */
 public class CoverRequirements {

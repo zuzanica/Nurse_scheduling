@@ -3,7 +3,11 @@ package algorithm;
 import common.Common;
 import common.XMLParser;
 import scheduler.Schedule;
-
+/**
+ * 
+ * @author Studena Zuzana
+ *
+ */
 public class Main {
 	public static String inputFile;
 	public static String outputFile;

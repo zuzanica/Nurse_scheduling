@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 /**
  * Specify nurse and all her requirements, skills, etc.
- * @author Studená Zuzana
+ * @author Studena Zuzana
  *
  */
 public class Nurse {

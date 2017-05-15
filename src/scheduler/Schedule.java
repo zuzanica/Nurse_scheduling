@@ -11,6 +11,11 @@ import algorithm.AllocationVector;
 import requirements.Cover;
 import requirements.CoverRequirements;
 
+/**
+ * 
+ * @author Studena Zuzana
+ *
+ */
 public class Schedule {
 	public static final int SOFTCONTRAINTS = 15; 
 	private Random rand; 	

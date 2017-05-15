@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 
 /**
  * Common methods, like save file,etc.
- * @author Studená Zuzana
+ * @author Studena Zuzana
  *
  */
 public final class Common {

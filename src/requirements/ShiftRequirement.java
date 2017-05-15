@@ -5,7 +5,7 @@ import scheduler.Shift;
 
 /**
  * Specify shift requirement.
- * @author Studená Zuzana
+ * @author Studena Zuzana
  *
  */
 public class ShiftRequirement extends Requirement {

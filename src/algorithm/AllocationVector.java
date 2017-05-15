@@ -14,7 +14,7 @@ import scheduler.Schedule;
 
 /**
  * Vector of allocation, with weight and all soft constraints violations.
- * @author Studená Zuzana.
+ * @author Studena Zuzana
  *
  */
 public class AllocationVector implements Comparable<Object>{

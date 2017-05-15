@@ -4,7 +4,7 @@ import scheduler.Shift;
 
 /**
  * Represents one request on shift and day. 
- * @author Studená Zuzana
+ * @author Studena Zuzana
  *
  */
 public class Cover {

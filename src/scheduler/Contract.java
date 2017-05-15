@@ -3,7 +3,7 @@ package scheduler;
 import java.util.ArrayList;
 /**
  * Specifies the employment contract and all its requirements.
- * @author Studená Zuzana
+ * @author Studena Zuzana
  *
  */
 public class Contract {

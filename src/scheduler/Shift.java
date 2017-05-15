@@ -3,7 +3,7 @@ package scheduler;
 import java.util.ArrayList;
 /**
  * Specify all shift parameters.
- * @author Studená Zuzana
+ * @author Studena Zuzana
  *
  */
 public class Shift {

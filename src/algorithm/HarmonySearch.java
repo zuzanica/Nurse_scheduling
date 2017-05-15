@@ -8,7 +8,7 @@ import scheduler.Schedule;
 
 /**
  * Harmony search algorithm.
- * @author Studená Zuzana.
+ * @author Studena Zuzana
  *
  */
 public class HarmonySearch {
