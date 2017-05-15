@@ -12,6 +12,11 @@ import scheduler.UnwantedPattern;
 import scheduler.UnwantedPattern.Pattern;
 import scheduler.Schedule;
 
+/**
+ * Vector of allocation, with weight and all soft constraints violations.
+ * @author Studená Zuzana.
+ *
+ */
 public class AllocationVector implements Comparable<Object>{
 	
 	Schedule schedule;
@@ -25,8 +30,6 @@ public class AllocationVector implements Comparable<Object>{
 		Arrays.fill(softContraintsVolation,new Integer(0));
 		x = new ArrayList<Allocation>();
 		fx = 0;
-		
-		//createFeasubleRooster();
 	}
 	
 	public void addAllocation(int _n, int _d, String _s){
@@ -89,36 +92,38 @@ public class AllocationVector implements Comparable<Object>{
 		return 0;
 	}
 	
+	/**
+	 * Creates one feasible rooster.
+	 */
 	public void createFeasubleRooster(){
 		//get vector of feasible solutions (AllocationVector)
-		//int vectorSum = 0;
 		int period = schedule.period / 7; // week = 7
 		for(int i = 0; i < period; i++){	
 			for(int j = 0; j < 7; j++){
 				ArrayList<Cover> coverList = schedule.getCoversList(j);
 				int nurseId = 0;
-				//int validNurses = schedule.nursesCount;
 				int[] randN = randNurses(schedule.getAllocCount(j), schedule.nursesCount);
 				for(int k = 0; k < coverList.size(); k++){
 					Cover c = coverList.get(k);
 					for(int l = 0; l < c.getPrefNurses(); l++){
 						int day = 7*i+j; // week = 7 * period + day of week 
 						Allocation a = new Allocation(randN[nurseId], day, c.getShift().getType());
-						// set weight for triplet(n,d,s)
-						//a.setWeight(setAllocationWeight(a,validNurses));
 						x.add(a);
 						nurseId++;
-						//vectorSum += a.weight;
-						//validNurses -= 1;
 					}
 				}
 			}
 		}
-		//x.setFxWeight(vectorSum);
-		
 		return;
 	}
 	
+	/**
+	 * 
+	 * @param allocationPosition
+	 * @param day
+	 * @param shift
+	 * @return feasible allocation for shift s, on day d. 
+	 */
 	public Allocation getNextFeasibleAllocation(int allocationPosition, int day, String shift){
 		ArrayList<Integer> possibleNurses = new ArrayList<>();
 		possibleNurses = initArray(possibleNurses, schedule.nursesCount);
@@ -171,17 +176,14 @@ public class AllocationVector implements Comparable<Object>{
 	public boolean willBeFeasible(Allocation alloc){
 		// sort
 		Collections.sort(x);
-		//System.out.println("Check allocation: " + alloc.toString());
 		for(int i = 0; i < x.size(); i++){	
 			Allocation a = x.get(i);
 			// find same nurse assigned at same day
 			if(a.d == alloc.d && alloc.n == a.n){
-				//System.out.println("Incorrcet rooster, nurse " + a.n + " in already assigned at day " + a.d);
 				return false;
 			}
 		}
 		
-		//System.out.println("ROOSTER WILL BE FEASIBLE.");
 		return true;
 	}
 	
@@ -216,7 +218,6 @@ public class AllocationVector implements Comparable<Object>{
 			//System.out.println("Total S" + i + " violation " + softContraintsVolation[i]);
 			fx +=  softContraintsVolation[i];
 		}
-		
 		return 0;
 	}
 	
@@ -239,15 +240,15 @@ public class AllocationVector implements Comparable<Object>{
 					scheduledAssigments++;
 				}
 			}
-			//System.out.println("Nurse " + n.id + " S1 violation " +  (scheduledAssigments - maxAssigmentns));
-			//System.out.println("Nurse " + n.id + " S2 violation " +  (minAssigmentns - scheduledAssigments));
 			// total cost for S1 constraint
 			softContraintsVolation[0] += (n.getContract().getWeight1()* Math.max( scheduledAssigments - maxAssigmentns, 0));
 			// total cost for S2 constraint
 			softContraintsVolation[1] += (n.getContract().getWeight2()* Math.max( minAssigmentns - scheduledAssigments, 0));
 		}
 	}
-	
+	/**
+	 * Count soft constraints S3,S4. 
+	 */
 	private void getMaxMinConseqDayViolations(){			
 		int[] consWorkDayOld = new int[schedule.nursesCount];
 		Arrays.fill(consWorkDayOld,new Integer(0));
@@ -268,13 +269,11 @@ public class AllocationVector implements Comparable<Object>{
 			if(a.d != day ){
 				day = a.d;
 				// at start of the day find minimal consecutive day violation
-				// System.out.println("Day " +  day);
 				for (int j = 0; j < minConsWorkTotal.length; j++) {
 					int mincwd = schedule.getNurse(j).getContract().getMinconsecutiveworkingdays();
 					if((consWorkDayNew[j] == 0) && (consWorkDayOld[j] < mincwd )){
 						minConsWorkTotal[j] += consWorkDayOld[j];
 					}
-					//System.out.println("Nurse " +j + " S4 violation-" +  minConsWorkTotal[j] +"   new val-" + consWorkDayNew[j] + "    Old val-" +  consWorkDayOld[j] + "   min " + mincwd);
 				}
 				//count consecutive work days
 				consWorkDayOld = consWorkDayNew.clone();
@@ -286,7 +285,6 @@ public class AllocationVector implements Comparable<Object>{
 			int maxcwd = schedule.getNurse(a.n).getContract().getMaxconsecutiveworkingdays();
 			if(consWorkDayNew[a.n] > maxcwd){
 				consWorkTotal[a.n]++;
-				//System.out.println("Nurse " +a.n + " S3 violation incerased at day" + day + " to " +  consWorkTotal[a.n]);
 			}
 		}
 		
@@ -294,12 +292,12 @@ public class AllocationVector implements Comparable<Object>{
 		for (int j = 0; j < minConsWorkTotal.length; j++) {
 			softContraintsVolation[2] += consWorkTotal[j]; 
 			softContraintsVolation[3] += minConsWorkTotal[j]; 
-			//System.out.println("Nurse " +j+ " S3 violation " +  consWorkTotal[j]);
-			//System.out.println("Nurse " +j+ " S4 violation " +  minConsWorkTotal[j]);
 		}
 	}
 	
-	
+	/**
+	 * Count soft constraints S5, S6.
+	 */
 	private void getMaxMinFreeDayVolations(){
 		int[] freeWorkDaysOld = new int[schedule.nursesCount];
 		Arrays.fill(freeWorkDaysOld,new Integer(0));
@@ -320,10 +318,9 @@ public class AllocationVector implements Comparable<Object>{
 		// loop feasible rooster represented like Allocation vector x
 		for (int i = 0; i < x.size(); i++) {
 			Allocation a = x.get(i);
-			// at startof new day starts
+			// at start of new day starts
 			if(a.d != day){
 				day = a.d;
-				//System.out.println("Day " + day);
 				// iterate all nurses that does not work previous day
 				for (int j = 0; j < freeNurses.size(); j++) {
 					int nurse = freeNurses.get(j);
@@ -333,18 +330,14 @@ public class AllocationVector implements Comparable<Object>{
 					int maxcfd = schedule.getNurse(nurse).getContract().getMaxconsecutivefreedays();
 					if(freeWorkingDaysNew[nurse] > maxcfd){
 						maxFreeDays[nurse]++;
-						//System.out.println("Nurse " + nurse + " has max incerased to  " +  maxFreeDays[nurse]);
 					}
-					//System.out.println("Nurse " + nurse + " at day " + day + " has max consequiteve free days " +  maxFreeDays[nurse]);
 				}
 				//for all nurses
 				for (int j = 0; j < minFreeDays.length; j++) {
-					//System.out.println("Nurse " + j + " has new value  " +  freeWorkingDaysNew[j] + "    and  old value " + freeWorkDaysOld[j] );
 					// count minimum consecutive free days
 					int mincfd = schedule.getNurse(j).getContract().getMinconsecutivefreedays();
 					if((freeWorkingDaysNew[j] == 0) && (freeWorkDaysOld[j] < mincfd )){
 						minFreeDays[j] += freeWorkDaysOld[j];
-						//System.out.println("Nurse " + j + " has min incerased to  " +  minFreeDays[j]);
 					}
 				}
 				// reinitialize nurses array
@@ -352,22 +345,20 @@ public class AllocationVector implements Comparable<Object>{
 				// copy new array into old
 				freeWorkDaysOld = freeWorkingDaysNew.clone();
 				Arrays.fill(freeWorkingDaysNew,new Integer(0));
-				/*for (int j = 0; j < minFreeDays.length; j++) {
-					System.out.println("Nurse " + j  + " has min consequiteve free days " +  minFreeDays[j]);
-				}*/
 			}
 			//remove nurse if has assigned shift
 			freeNurses.remove(Integer.valueOf(a.n));
 		}
-		// count S4 S5 violation for all nurses
+		// count S6, S6 violation for all nurses
 		for (int j = 0; j < maxFreeDays.length; j++) {
 			softContraintsVolation[4] += maxFreeDays[j]; 
 			softContraintsVolation[5] += minFreeDays[j]; 
-			//System.out.println("Nurse " +j+ " S4 violation-" +  minConsWorkTotal[j]);
 		}
 	}
 	
-	// TODO overit spravnost implementacie, porusenie strasne narasta je mozne ze som zle pochopila ako implementovat complete weekends
+	/**
+	 * Count soft constraints S7.
+	 */
 	private void completeWeekends(){
 		int[] workWeekends = new int[schedule.nursesCount];
 		Arrays.fill(workWeekends,new Integer(0));
@@ -392,16 +383,17 @@ public class AllocationVector implements Comparable<Object>{
 		}
 		// count last weekend during scheduling period
 		for (int j = 0; j < workWeekends.length; j++) {
-			//System.out.println("Nurse " +j+ " last work weekends days " +  workWeekends[j]);
 			if(workWeekends[j] == 1){
 				completeWeekendsPenalty[j] += 1;
 			}
 			softContraintsVolation[7] += completeWeekendsPenalty[j]; 
-			//System.out.println("Nurse " +j+ " S7 violation " +  completeWeekendsPenalty[j]);
 		}
 		
 	}
 	
+	/**
+	 * Count soft constraints S8.
+	 */
 	private void identicalWeekends(){
 		String[] workSaturady = new String[schedule.nursesCount];
 		Arrays.fill(workSaturady,new String(""));
@@ -436,10 +428,12 @@ public class AllocationVector implements Comparable<Object>{
 		// count total S8 violation penalty
 		for (int j = 0; j < identicaleWeekendsPenalty.length; j++) {
 			softContraintsVolation[8] += identicaleWeekendsPenalty[j]; 
-			//System.out.println("Nurse " +j+ " S8 violation " +  identicaleWeekendsPenalty[j]);
 		}
 	}
 	
+	/**
+	 * Count soft constraints S9.
+	 */
 	private void twoFreeDaysAfterNight(){
 		int[] twoFreeDays = new int[schedule.nursesCount];
 		Arrays.fill(twoFreeDays,new Integer(0));
@@ -481,10 +475,11 @@ public class AllocationVector implements Comparable<Object>{
 		
 		for (int j = 0; j < workDayAfterNightTotal.length; j++) {
 			softContraintsVolation[9] += workDayAfterNightTotal[j]; 
-			//System.out.println("Nurse " +j+ " S9 violation " +  workDayAfterNightTotal[j]);
 		}
 	}
-	
+	/**
+	 * Count soft constraints S15.
+	 */
 	private void unwantedPatterns(){
 		int[] uwPatternCounter = new int[schedule.nursesCount];
 		// vector of nurses with total working days after night shift 
@@ -499,7 +494,6 @@ public class AllocationVector implements Comparable<Object>{
 			int patternLen = shiftPattern.getPatterns().size();
 			Arrays.fill(uwPatternCounter,new Integer(0));
 			Arrays.fill(uwPatternVolation,new Integer(0));
-			//System.out.println("P len " +  patternLen);
 			
 			Pattern pattern;
 			int day = 0;
@@ -526,7 +520,6 @@ public class AllocationVector implements Comparable<Object>{
 				}
 				// if nurse a.n has assigned unwanted shift
 				pattern = shiftPattern.getPatterns().get(0);
-				//System.out.println("P " +  pattern.getShiftType());
 				if(a.s.equals(pattern.getShiftType())){
 					// set signal that nurse need 2 free days
 					uwPatternCounter[a.n] = patternLen; 
@@ -534,28 +527,20 @@ public class AllocationVector implements Comparable<Object>{
 			}	
 			for (int j = 0; j < uwPatternTotalVolation.length; j++) {
 				softContraintsVolation[14] += uwPatternTotalVolation[j]; 
-				//System.out.println("Nurse " +j+ " S15 violation " +  uwPatternTotalVolation[j]);
 			}
 		}
 	}
 
-
+	/**
+	 * Count soft constraints S10,12.
+	 */
 	private void dayOffShiftOff(){
 		int[] daysOffVolations = new int[schedule.nursesCount];
 		Arrays.fill(daysOffVolations,new Integer(0));
-
 		int[] shiftsOffVolations = new int[schedule.nursesCount];
 		Arrays.fill(shiftsOffVolations,new Integer(0));
 		
 		Nurse tmpNurse;
-		/*
-		for (int i = 0; i < schedule.nursesCount; i++) {
-			tmpNurse = schedule.getNurse(i);
-			//System.out.println("Nurse " +i+ " dayoff req " +  tmpNurse.getFreeDayRequirements().toString());
-			//System.out.println("Nurse " +i+ " shift req " +  tmpNurse.getFreeShiftRequirements().toString());
-		}
-		*/
-		
 		for (int i = 0; i < x.size(); i++) {
 			Allocation a = x.get(i);
 			
@@ -565,16 +550,13 @@ public class AllocationVector implements Comparable<Object>{
 			}
 			FreeShift fs = tmpNurse.new FreeShift(a.d, a.s);
 			if(tmpNurse.getFreeShiftRequirements().contains(fs)){
-				//System.out.println("Nurse " +a.n+ " does not setisfy day " +  a.d + " shift " + a.s);
 				shiftsOffVolations[a.n]++; 
 			}
 		}
 		
 		for (int j = 0; j < daysOffVolations.length; j++) {
 			softContraintsVolation[10] += daysOffVolations[j]; 
-			//System.out.println("Nurse " +j+ " S10 violation " +  daysOffVolations[j]);
 			softContraintsVolation[12] += shiftsOffVolations[j]; 
-			//System.out.println("Nurse " +j+ " S12 violation " +  shiftsOffVolations[j]);
 		}
 	}
 	

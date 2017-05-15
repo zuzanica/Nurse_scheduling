@@ -3,11 +3,11 @@ package scheduler;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
+import algorithm.AllocationVector;
 import requirements.Cover;
 import requirements.CoverRequirements;
 
@@ -28,10 +28,10 @@ public class Schedule {
 	// nurse requirements for specific day or shift
 	ArrayList<CoverRequirements> weeklyCoverRequirements = new ArrayList<CoverRequirements>() ;
 
-
+	AllocationVector solution = null;
 	// schedule variables	
 	public int nursesCount = 0;
-	// number of differenet shifts
+	// number of different shifts
 	public int shiftTypeCount = 0;
 	// scheduling period in days (example 0-28)
 	public int period = 0;
@@ -70,6 +70,13 @@ public class Schedule {
 		}
 		
 		return -1;
+	}
+	
+	public String createDate(int dateIndex){
+		if(dateIndex < 9)
+			return "2010-01-0" + Integer.toString((dateIndex+1));
+		else
+			return "2010-01-" + Integer.toString((dateIndex+1));
 	}
 	
 	public void addSkill(String s){
@@ -129,7 +136,6 @@ public class Schedule {
 		// count full period interval
 		int i = period / weeklyCoverRequirements.size(); // prediod/7 || 28/7 = 4 
 		ac *= i; 
-		//System.out.println("Alocation Count:" + ac);
 		return ac;
 	}
 	
@@ -147,7 +153,6 @@ public class Schedule {
 				break;
 			}
 		}
-		//System.out.println("Day " + day + " allocation count:" + ac);
 		return ac;
 	}	
 	
@@ -162,7 +167,6 @@ public class Schedule {
 		CoverRequirements cr = weeklyCoverRequirements.get(i);	
 		ac += cr.getDailyCoverCount();
 		
-		//System.out.println("Day " + cr.getDay() + " allocation count:" + ac);
 		return ac;
 	}
 	
@@ -198,4 +202,11 @@ public class Schedule {
 		return dayPatterns;
 	}
 	
+	public void setSolution(AllocationVector solution) {
+		this.solution = solution;
+	}
+	
+	public AllocationVector getSolution() {
+		return solution;
+	}
 }

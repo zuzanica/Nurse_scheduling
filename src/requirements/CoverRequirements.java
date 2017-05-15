@@ -2,9 +2,11 @@ package requirements;
 
 import java.util.ArrayList;
 
-import scheduler.Nurse;
-import scheduler.Shift;
-
+/**
+ * Represents all requests for all period.
+ * @author Studená Zuzana
+ *
+ */
 public class CoverRequirements {
 	String day;
 	ArrayList<Cover> cover;
@@ -29,16 +31,6 @@ public class CoverRequirements {
 		return dayNurseCover;
 		
 	}
-	
-	/*public Cover getCover(String shitType){
-		for(Cover c : cover ){
-			if(c.getShift().getType().equals(shitType)){
-				return c;
-			}
-		}
-		return null;
-	}*/
-	
 	
 	@Override
 	public String toString() {

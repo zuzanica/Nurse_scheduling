@@ -2,6 +2,11 @@ package scheduler;
 
 import java.util.ArrayList;
 
+/**
+ * Class represents Unwanted patters, from INRC 2010.
+ * @author Studená Zuzana
+ *
+ */
 public class UnwantedPattern{ 
 
 	ArrayList<Pattern> patterns;

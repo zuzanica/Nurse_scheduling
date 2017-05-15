@@ -3,6 +3,11 @@ package requirements;
 import scheduler.Nurse;
 import scheduler.Shift;
 
+/**
+ * Specify shift requirement.
+ * @author Studená Zuzana
+ *
+ */
 public class ShiftRequirement extends Requirement {
 
 	Shift shift;

@@ -5,9 +5,6 @@ import common.XMLParser;
 import scheduler.Schedule;
 
 public class Main {
-	//public static String inputFile  = "data/example.xml" ;
-	//public static String inputFile  = "data/sprint01.xml" ;
-	//public static String inputFile  = "data/sprint_late01.xml" ;
 	public static String inputFile;
 	public static String outputFile;
 
@@ -28,7 +25,8 @@ public class Main {
 		HarmonySearch HSA = new HarmonySearch(nurseSchedule);
 		
 		outputFile = Common.getfileName(inputFile);
-		Common.storeResult(outputFile, HSA.getSolution());
+		XMLParser.storeSchedule(outputFile, nurseSchedule);
+		Common.storeResult(outputFile, HSA.getSolution(), HSA.getInitViolation());
 		System.out.println("Result saved in "+ outputFile); 
 		
 	}

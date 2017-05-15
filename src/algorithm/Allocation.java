@@ -1,5 +1,9 @@
 package algorithm;
-
+/**
+ * Represents one nurse n with is assigned to shit s on day d.
+ * @author Studená Zuzana
+ *
+ */
 public class Allocation  implements Comparable<Object> {	
 	int n,d; // nurse, date
 	String s; // shift type
@@ -19,6 +23,15 @@ public class Allocation  implements Comparable<Object> {
 		weight = _w;
 	}
 	
+	public int getD() {
+		return d;
+	}
+	public String getS() {
+		return s;
+	}
+	public int getN() {
+		return n;
+	}
 	
 	@Override
 	public int compareTo(Object o) {

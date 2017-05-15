@@ -2,6 +2,11 @@ package requirements;
 
 import scheduler.Shift;
 
+/**
+ * Represents one request on shift and day. 
+ * @author Studená Zuzana
+ *
+ */
 public class Cover {
 	
 	Shift shift;

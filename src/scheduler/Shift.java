@@ -1,7 +1,11 @@
 package scheduler;
 
 import java.util.ArrayList;
-
+/**
+ * Specify all shift parameters.
+ * @author Studená Zuzana
+ *
+ */
 public class Shift {
 	int id;
 	String startTime;
@@ -18,7 +22,6 @@ public class Shift {
 		requiredSkills = (ArrayList<String>) s.clone();
 		description = desc;
 	}
-	
 	
 	public ArrayList<String> getSkills(){
 		return requiredSkills;

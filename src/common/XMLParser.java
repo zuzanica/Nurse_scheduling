@@ -7,6 +7,12 @@ import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -14,6 +20,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import algorithm.Allocation;
 import requirements.Cover;
 import requirements.CoverRequirements;
 import scheduler.Contract;
@@ -21,7 +28,11 @@ import scheduler.Nurse;
 import scheduler.Schedule;
 import scheduler.Shift;
 import scheduler.UnwantedPattern;
-
+/**
+ * Working with XML file.
+ * @author Studená Zuzana
+ *
+ */
 public final class XMLParser {
 	File fXmlFile; 
 	DocumentBuilderFactory dbFactory;
@@ -35,21 +46,81 @@ public final class XMLParser {
 			dBuilder = dbFactory.newDocumentBuilder();
 			doc = dBuilder.parse(fXmlFile);
 		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SAXException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		//optional, but recommended
-		//read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
 		doc.getDocumentElement().normalize();
 	}
 	
+	/**
+	 * Save final schedule into xml.
+	 * @param file
+	 * @param schedule
+	 */
+	public static void storeSchedule(String file, Schedule schedule){
+		String finalFile = file+ "_sol.xml";
+		try{		
+			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+	
+			doc = docBuilder.newDocument();
+			Element rootElement = (Element) doc.createElement("Solution");
+			doc.appendChild(rootElement);
+						
+			Element period = doc.createElement("SchedulingPeriodID");
+			period.appendChild(doc.createTextNode(file));
+			rootElement.appendChild(period);
+			Element competitor = doc.createElement("SchedulingPeriodID");
+			competitor.appendChild(doc.createTextNode("Zuzana"));
+			rootElement.appendChild(competitor);
+			Element penalty = doc.createElement("SoftConstraintsPenalty");
+			penalty.appendChild(doc.createTextNode(Integer.toString(schedule.getSolution().getFxWeight())));
+			rootElement.appendChild(penalty);
+
+			for(Allocation alloc : schedule.getSolution().getX()){
+				Element assigment = doc.createElement("Assignment");
+				
+				Element date = doc.createElement("Date");
+				String d = schedule.createDate(alloc.getD());
+				date.appendChild(doc.createTextNode(d));				
+				assigment.appendChild(date);
+				
+				Element nurse = doc.createElement("Employee");
+				nurse.appendChild(doc.createTextNode(Integer.toString(alloc.getN())));				
+				assigment.appendChild(nurse);
+				
+				Element shift = doc.createElement("ShiftType");
+				shift.appendChild(doc.createTextNode(alloc.getS()));				
+				assigment.appendChild(shift);
+
+				rootElement.appendChild(assigment);
+			}
+			
+			// write a content into xml file
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			Transformer transformer = transformerFactory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+			DOMSource source = new DOMSource(doc);
+			StreamResult result = new StreamResult(new File(finalFile));
+	
+			transformer.transform(source, result);
+	
+		  } catch (ParserConfigurationException pce) {
+			  pce.printStackTrace();
+		  } catch (TransformerException tfe) {
+			  tfe.printStackTrace();
+		  }
+	}
+	
+	/**
+	 * Parse schedule information from XML. 
+	 * @return
+	 */
 	public static Schedule parse(){
 		Schedule schedule;
 		try{
@@ -78,13 +149,10 @@ public final class XMLParser {
 	
 	static void parseSkills(Schedule schedule){
 		NodeList skillNode = (NodeList) doc.getElementsByTagName("Skills");
-		//System.out.println("Node node length " + skillNode.getLength());
 		NodeList skills = (NodeList) skillNode.item(0);
-		//System.out.println("Skills node length " + skills.getLength());
 		for (int temp = 0; temp < skills.getLength(); temp++) {
 			Node skill = (Node) skills.item(temp);			
 			if (skill.getNodeType() == Node.ELEMENT_NODE) {
-				//System.out.println(temp + ": skill type "+ skill.getTextContent());
 				schedule.addSkill(skill.getTextContent());
 			}
 		}
@@ -92,9 +160,7 @@ public final class XMLParser {
 	
 	static void parseShifts(Schedule schedule){
 		NodeList shiftNode = (NodeList) doc.getElementsByTagName("ShiftTypes");
-		//System.out.println("Node node length " + skillNode.getLength());
 		NodeList shifts = (NodeList) shiftNode.item(0);
-		//System.out.println("Skills node length " + shifts.getLength());
 		for (int temp = 0; temp < shifts.getLength(); temp++) {
 			Node shift = (Node) shifts.item(temp);
 
@@ -117,24 +183,19 @@ public final class XMLParser {
 				String desc = eElement.getElementsByTagName("Description").item(0).getTextContent();
 				
 				Shift s = new Shift(st, et, type, RS, desc);
-				//System.out.println(s.toString());
 				schedule.addShift(s);	
 			}	
 		}
-		
 	}
 	
 	static void parseUnwantedPatterns(Schedule schedule){
 		NodeList patternsNode = (NodeList) doc.getElementsByTagName("Patterns");
-		//System.out.println("Node node length " + skillNode.getLength());
 		NodeList patterns = (NodeList) patternsNode.item(0);
-		//System.out.println("Skills node length " + shifts.getLength());
 		for (int temp = 0; temp < patterns.getLength(); temp++) {
 			Node pattern = (Node) patterns.item(temp);
 
 			if (pattern.getNodeType() == Node.ELEMENT_NODE) {
 				Element eElement = (Element) pattern;
-				int id = Integer.parseInt(eElement.getAttribute("ID"));
 				
 				//parse node with pattern entry
 				NodeList pEntries = (NodeList) eElement.getElementsByTagName("PatternEntries").item(0);
@@ -148,15 +209,12 @@ public final class XMLParser {
 						String day = elem.getElementsByTagName("Day").item(0).getTextContent();
 						uwPattern.addPattern(uwPattern.new Pattern(st, day));
 						if(day.equals("Any")){
-							//System.out.println("add shift pattern!");
 							shiftPattern = true;
 						}else if(st.equals("None") || st.equals("Any")){
 							shiftPattern = false;
-							//System.out.println("add day pattern!");
 						}else {
 							System.err.println("Unknown patterns are dropped!");
 						}
-						
 					}
 				}
 				if(shiftPattern){
@@ -176,14 +234,12 @@ public final class XMLParser {
 
 			if (contact.getNodeType() == Node.ELEMENT_NODE) {
 				Element eElement = (Element) contact;
-				//TODO child nodeList unwanted patterns
 				ArrayList<Integer> UP = new ArrayList<Integer>();
 				NodeList unwantedPatterns = (NodeList) eElement.getElementsByTagName("Pattern").item(0);
 				if(unwantedPatterns != null){
 					for (int i = 0; i < unwantedPatterns.getLength(); i++) {
 						Node pattern = (Node) unwantedPatterns.item(i);			
 						if (pattern.getNodeType() == Node.ELEMENT_NODE) {
-							//System.out.println(i + ": UP "+ skill.getTextContent());
 							UP.add(Integer.parseInt(pattern.getTextContent()));
 						}
 					}
@@ -207,12 +263,10 @@ public final class XMLParser {
 				String ISTDW = eElement.getElementsByTagName("IdenticalShiftTypesDuringWeekend").item(0).getTextContent();
 				String NNSBFW = eElement.getElementsByTagName("NoNightShiftBeforeFreeWeekend").item(0).getTextContent();
 				String altSkill = eElement.getElementsByTagName("AlternativeSkillCategory").item(0).getTextContent();
-				//TODO dorobit dalsie zavislosti z XML
 				
 				Contract c = new Contract(Integer.parseInt(id),desc);
 				c.addContraints(assigmentPD, maxNA, minNA, maxWD, minWD, maxFD, minFD, maxCWW, minCWW, MWWIFW, weekend, compW ,ISTDW, NNSBFW, altSkill  );
 				c.setUnwantedPatterns(UP);
-				//System.out.println(c.toString());
 				schedule.addContract(c);	
 			}	
 		}
@@ -236,11 +290,9 @@ public final class XMLParser {
 						NS.add(skill.getTextContent());
 					}
 				}
-								
 				int id = Integer.parseInt(eElement.getAttribute("ID"));
 				int cId = Integer.parseInt(eElement.getElementsByTagName("ContractID").item(0).getTextContent());
 				Nurse n = new Nurse(id, schedule.getContract(cId), NS );
-				//System.out.println(n.toString());
 				schedule.addNurse(n);	
 			}	
 		}
@@ -249,7 +301,6 @@ public final class XMLParser {
 	static void parseCoverRequirements(Schedule schedule){
 		NodeList coverNode = (NodeList) doc.getElementsByTagName("CoverRequirements");
 		NodeList weekCovers = (NodeList) coverNode.item(0);
-		//create structure of the week cover requirements
 		ArrayList<CoverRequirements> weekCR = new ArrayList<CoverRequirements>();
 		for (int temp = 0; temp < weekCovers.getLength(); temp++) {
 			Node dayCover = (Node) weekCovers.item(temp);
@@ -257,9 +308,7 @@ public final class XMLParser {
 			CoverRequirements DC = null;
 			if (dayCover.getNodeType() == Node.ELEMENT_NODE) {
 				Element eElement = (Element) dayCover;
-				//System.out.println(eElement.getTextContent());
 				//get week day
-				//System.out.println(eElement.getElementsByTagName("Day").item(0).getTextContent());
 				String day = eElement.getElementsByTagName("Day").item(0).getTextContent();
 				//list of four daily shit requirements
 				ArrayList<Cover> shiftCoverList = new ArrayList<Cover>();
@@ -281,7 +330,6 @@ public final class XMLParser {
 				//create structure of one day cover requirements
 				DC = new CoverRequirements(day, shiftCoverList);
 				weekCR.add(DC);
-				//System.out.println(DC.toString());
 			}
 		}
 		schedule.addCoverRequirements(weekCR);	
@@ -297,12 +345,9 @@ public final class XMLParser {
 
 			if (day.getNodeType() == Node.ELEMENT_NODE) {
 				Element eElement = (Element) day;
-				//System.out.println(eElement.getTextContent());
-				//System.out.println(eElement.getElementsByTagName("EmployeeID").item(0).getTextContent());
 				int nurseId = Integer.parseInt(eElement.getElementsByTagName("EmployeeID").item(0).getTextContent());
 				String d = eElement.getElementsByTagName("Date").item(0).getTextContent();
 				schedule.addNurseFreeDay(nurseId, d);
-				//System.out.println(DC.toString());
 			}
 		}
 	}
@@ -316,15 +361,11 @@ public final class XMLParser {
 
 			if (day.getNodeType() == Node.ELEMENT_NODE) {
 				Element eElement = (Element) day;
-				//System.out.println(eElement.getTextContent());
-				//System.out.println(eElement.getElementsByTagName("Day").item(0).getTextContent());
 				int nurseId = Integer.parseInt(eElement.getElementsByTagName("EmployeeID").item(0).getTextContent());
 				String st = eElement.getElementsByTagName("ShiftTypeID").item(0).getTextContent();
 				String d = eElement.getElementsByTagName("Date").item(0).getTextContent();
 				schedule.addNurseFreeShift(nurseId, d, st);
-				//System.out.println(DC.toString());
 			}
 		}
 	}
-	
 }

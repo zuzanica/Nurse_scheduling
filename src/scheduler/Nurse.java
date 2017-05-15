@@ -2,6 +2,11 @@ package scheduler;
 
 import java.util.ArrayList;
 
+/**
+ * Specify nurse and all her requirements, skills, etc.
+ * @author Studená Zuzana
+ *
+ */
 public class Nurse {
 	public int id;
 	public Contract contract; 
@@ -14,7 +19,6 @@ public class Nurse {
 	public class FreeShift {
 		int date;
 		String shiftType;
-		//int weight;
 		
 		public  FreeShift(int d, String st){
 			date = d;
